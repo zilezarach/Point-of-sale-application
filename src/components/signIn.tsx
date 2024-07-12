@@ -12,16 +12,12 @@ const signIn = () => {
   const [error, setError] = useState('')
   const [password, setPassword] = useState('')
 
-  const handlesubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (username === 'admin' && password === 'admin') {
-      router.push("admin/dashboard")
+      router.push('/admin')
     } else {
-      if (username === 'employ' && password === 'user') {
-        router.push("/employee/checkout")
-      } else {
-        setError("Wrong password or username")
-      }
+      setError('invalid username and password')
     }
   }
 
@@ -35,17 +31,17 @@ const signIn = () => {
           height={100}
           alt="logo"
         />
-        <form className="bg-white p-10 rounded shadow-md">
+        <form onSubmit={handleSubmit} className="bg-white p-10 rounded shadow-md">
           <h2 className="text-2xl font-bold mb-4 text-red-600 no-underline hover:underline">Welcome to Zacc</h2>
           <h2 className="text-lg font-bold mb-4 text-red-600 no-underline hover:underline">Sign In</h2>
           {error && <p className="text-red-800 mb-4">{error}</p>}
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700 font-bold mb-2">Username</label>
-            <input type="text" id="username" name="username" value={username} className="px-3 py-2 w-full border-2 border-rose-500 text-black" onChange={(e) => setUsername(e.target.value)} required />
+            <input type="text" id="username" name="username" value={username} className="px-3 py-2 w-full border-2 border-rose-500 text-black" onChange={(e) => setUsername(e.target.value)} />
           </div>
           <div className="mb-6">
             <label htmlFor="password" className="block text-gray-700 font-bold">Password</label>
-            <input type="password" id="password" name="password" value={password} className="px-3 py-2 w-full border-2 border-rose-500 text-black" onChange={(e) => setPassword(e.target.value)} required />
+            <input type="password" id="password" name="password" value={password} className="px-3 py-2 w-full border-2 border-rose-500 text-black" onChange={(e) => setPassword(e.target.value)} />
           </div>
           <button type="submit" className=" flex items-center justify-center bg-rose-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded">Sign In</button>
         </form>
