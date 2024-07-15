@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import api from "../lib/api";
 
 const signIn = () => {
   const router = useRouter();
@@ -9,12 +10,20 @@ const signIn = () => {
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (username === "admin" && password === "admin") {
-      router.push("/admin");
-    } else {
-      setError("invalid username and password");
+  const handleSubmit = async () => {
+    try {
+      const response = await api.post("auth/login", { username, password });
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role);
+      if (response.data.role === "admin") {
+        router.push("/admin");
+      } else {
+        if (response.data.role === "employee") {
+          router.push("/checkout");
+        }
+      }
+    } catch (err) {
+      setError("Invalid Credentials");
     }
   };
 
@@ -32,7 +41,7 @@ const signIn = () => {
           <h2 className="text-lg font-bold mb-4 text-red-600 no-underline hover:underline">
             Sign In
           </h2>
-          {error && <p className="text-red-800 mb-4">{error}</p>}
+          {error && <p className=" border text-red-800 mb-4">{error}</p>}
           <div className="mb-4">
             <label
               htmlFor="username"
@@ -63,7 +72,7 @@ const signIn = () => {
             />
           </div>
           <button
-            type="submit"
+            onClick={handleSubmit}
             className=" flex items-center justify-center bg-rose-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
           >
             Sign In
