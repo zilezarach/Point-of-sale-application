@@ -2,28 +2,30 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import api from "../lib/api";
+import axios from "axios";
 
 const signIn = () => {
-  const router = useRouter();
   const [username, setUsername] = useState("");
-  const [error, setError] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleSubmit = async () => {
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const response = await api.post("auth/login", { username, password });
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.role);
+      const response = await axios.post("http://localhost:5000/api/login", {
+        username,
+        password,
+      });
+
+      setError("Login successful");
+
       if (response.data.role === "admin") {
         router.push("/admin");
       } else {
-        if (response.data.role === "employee") {
-          router.push("/checkout");
-        }
+        if (response.data.role === "employee") router.push("/checkout");
       }
-    } catch (err) {
-      setError("Invalid Credentials");
+    } catch (error) {
+      setError("Login failed");
     }
   };
 
@@ -41,7 +43,11 @@ const signIn = () => {
           <h2 className="text-lg font-bold mb-4 text-red-600 no-underline hover:underline">
             Sign In
           </h2>
-          {error && <p className=" border text-red-800 mb-4">{error}</p>}
+          {error && (
+            <p className=" border border-blue-800 rounded bg-rose-500 text-black font-bold mb-4">
+              {error}
+            </p>
+          )}
           <div className="mb-4">
             <label
               htmlFor="username"
