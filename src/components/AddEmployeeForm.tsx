@@ -1,65 +1,76 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface Employee {
   _id: string;
   email: string;
   role: string;
   username: string;
+  name: string;
 }
 
 const AddEmployeeForm = () => {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [role, setRole] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    fetchEmployees();
+    const savedToken = localStorage.getItem("token");
+    if (!savedToken) {
+      router.push("/admin/employeeMan");
+    } else {
+      setToken(savedToken);
+      fetchEmployees(savedToken);
+    }
   }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (token) => {
     try {
-      const response = await axios.get<Employee[]>(
-        "http://localhost:5000/api/employees",
-      );
-      console.log("Fetched employees:", response.data); // Add console log
+      const response = await axios.get("http://localhost:5000/api/employee", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setEmployees(response.data);
     } catch (error) {
-      setError("Error fetching employees");
+      console.error(error.response.data.message);
+      setError("No Employees in roster");
     }
   };
 
   const handleAddEmployee = async () => {
-    if (!role || !email || !username || !password) {
-      alert("All fields are required");
-      return;
-    }
-
     try {
-      await axios.post("http://localhost:5000/api/employees", {
-        email,
-        role,
-        username,
-        password,
-      });
-      fetchEmployees();
-      setEmail("");
-      setRole("");
+      await axios.post(
+        "http://localhost:5000/api/employee",
+        { username, password, email, role, name },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      fetchEmployees(token);
       setUsername("");
       setPassword("");
+      setEmail("");
+      setName("");
+      setRole("");
     } catch (error) {
-      setError("Error adding employee");
+      console.error(error.response.data.message);
+      setError("Error adding Employee");
     }
   };
-  const handleRemoveEmployee = async (id: string) => {
+
+  const handleRemoveEmployee = async (id: String) => {
     try {
-      await axios.delete(`http://localhost:5000/api/employees/${id}`);
-      fetchEmployees();
+      await axios.delete(`http://localhost:5000/api/employee/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchEmployees(token);
     } catch (error) {
+      console.error(error.response.data.message);
       setError("Error removing employee");
     }
   };
@@ -75,6 +86,15 @@ const AddEmployeeForm = () => {
         <input
           type="text"
           placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="rounded border border-rose-600 w-1/2 text-black"
+        />
+      </div>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="rounded border border-rose-600 w-1/2 text-black"
@@ -116,10 +136,13 @@ const AddEmployeeForm = () => {
       <h2 className="text-rose-600 font-bold mb-6 text-2xl">Employee Roster</h2>
       <ul>
         {employees.map((employee) => (
-          <li key={employee._id} className="flex justify-items-center mb-2">
-            <span>
-              {" "}
-              ({employee.email}) - {employee.role} - {employee.username}
+          <li
+            key={employee._id}
+            className="flex justify-items-center mb-2 bg-rose-600"
+          >
+            <span className="border border-rose-600">
+              {employee.name} ({employee.email}) - {employee.role} -{" "}
+              {employee.username}
             </span>
             <button
               onClick={() => handleRemoveEmployee(employee._id)}
