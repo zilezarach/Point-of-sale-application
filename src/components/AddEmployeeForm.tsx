@@ -17,61 +17,41 @@ const AddEmployeeForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState<string>("employee");
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [token, setToken] = useState(null);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    if (!savedToken) {
-      router.push("/admin/employeeMan");
-    } else {
-      setToken(savedToken);
-      fetchEmployees(savedToken);
-    }
+    fetchEmployees();
   }, []);
 
-  const fetchEmployees = async (token) => {
+  const fetchEmployees = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/employee", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get<Employee[]>("/api/employees");
       setEmployees(response.data);
     } catch (error) {
-      console.error(error.response.data.message);
-      setError("No Employees in roster");
+      console.error("Error fetching employees:", error);
     }
   };
 
   const handleAddEmployee = async () => {
     try {
-      await axios.post(
-        "http://localhost:5000/api/employee",
-        { username, password, email, role, name },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      fetchEmployees(token);
+      await axios.post("/api/employees", { username, password, role });
       setUsername("");
       setPassword("");
-      setEmail("");
-      setName("");
-      setRole("");
+      fetchEmployees();
     } catch (error) {
-      console.error(error.response.data.message);
-      setError("Error adding Employee");
+      console.error("Error adding employee:", error);
     }
   };
 
-  const handleRemoveEmployee = async (id: String) => {
+  const handleRemoveEmployee = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:5000/api/employee/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchEmployees(token);
+      await axios.delete(`/api/employees/${id}`);
+      fetchEmployees();
     } catch (error) {
-      console.error(error.response.data.message);
-      setError("Error removing employee");
+      console.error("Error removing employee:", error);
     }
   };
 

@@ -72,6 +72,7 @@ export default function Page() {
             Print Reciept
           </button>
         </div>
+        <div className=" rounded w-2/3 bg-white shadow-md mt-5 ml-5 mr-4"></div>
       </div>
     </div>
   );

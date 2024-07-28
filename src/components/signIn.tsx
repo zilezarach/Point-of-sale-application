@@ -12,7 +12,7 @@ const signIn = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/login", {
+      const response = await axios.post("/api/auth/login", {
         username,
         password,
       });
@@ -22,7 +22,7 @@ const signIn = () => {
       if (response.data.role === "admin") {
         router.push("/admin");
       } else {
-        if (response.data.role === "employee") router.push("/checkout");
+        if (response.data.role === "employee") router.push("/POs");
       }
     } catch (error) {
       setError("Login failed");
@@ -60,7 +60,7 @@ const signIn = () => {
               id="username"
               name="username"
               value={username}
-              className="px-3 py-2 w-full border-2 border-rose-500 text-black"
+              className="px-3 py-2 w-full border-2 border-rose-500 text-black focus:outline-none"
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
@@ -73,7 +73,7 @@ const signIn = () => {
               id="password"
               name="password"
               value={password}
-              className="px-3 py-2 w-full border-2 border-rose-500 text-black"
+              className="px-3 py-2 w-full border-2 border-rose-500 text-black focus:outline-none"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
