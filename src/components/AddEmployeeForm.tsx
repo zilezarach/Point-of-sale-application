@@ -17,7 +17,7 @@ const AddEmployeeForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [role, setRole] = useState<string>("employee");
+  const [role, setRole] = useState<string>("Employee");
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [token, setToken] = useState(null);
@@ -42,7 +42,8 @@ const AddEmployeeForm = () => {
       setPassword("");
       fetchEmployees();
     } catch (error) {
-      console.error("Error adding employee:", error);
+      console.error("Error adding employee:", error)
+      setError("Cannot add Employee");
     }
   };
 
@@ -52,11 +53,12 @@ const AddEmployeeForm = () => {
       fetchEmployees();
     } catch (error) {
       console.error("Error removing employee:", error);
+      setError("Unable to remove employee")
     }
   };
 
   return (
-    <div className="container mx-auto mb-5">
+    <div className="container mx-auto ml-20">
       <h1 className="font-bold text-2xl mb-5 text-rose-600">
         Manage Employees
       </h1>
@@ -120,13 +122,13 @@ const AddEmployeeForm = () => {
             key={employee._id}
             className="flex justify-items-center mb-2 bg-rose-600"
           >
-            <span className="border border-rose-600">
-              {employee.name} ({employee.email}) - {employee.role} -{" "}
+            <span className="border rounded border-rose-600">
+              {employee.name} ({employee.email}) - {employee.role}
               {employee.username}
             </span>
             <button
               onClick={() => handleRemoveEmployee(employee._id)}
-              className="rounded bg-rose-600 text-white mb-4 p-3"
+              className="rounded bg-blue-500 text-white mb-4 p-3"
             >
               Remove
             </button>

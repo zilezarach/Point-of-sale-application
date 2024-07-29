@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import AddProductForm from "./AddProductForm";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FcCustomerSupport } from "react-icons/fc";
@@ -8,10 +8,15 @@ import { FcSettings } from "react-icons/fc";
 import { FaCreditCard } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { LuLogOut } from "react-icons/lu";
+import { BiMaleFemale } from "react-icons/bi";
 
 export default function navbar() {
+  const router = useRouter();
+  const handleTransaction = () => {
+    router.push("/Transactions")
+  }
   return (
-    <div>
+    <div className="p-2">
       <button
         onClick={AddProductForm}
         className="no-underline hover:underline  rounded bg-green-500 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3"
@@ -23,10 +28,13 @@ export default function navbar() {
         <FcCustomerSupport />
         Customer Orders
       </button>
+      <button className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3"><BiMaleFemale />
+        Customers
+      </button>
       <button className=" no-underline hover:underline rounded bg-green-500 hover:bg-blue-600 p-2 ml-128 mr-3 mt-3 mb-3">
         <FcSettings />
       </button>
-      <button className=" no-underline hover:underline rounded bg-green-500 hover:bg-blue-600 p-2 ml-10 mr-3 mt-3 mb-3">
+      <button onClick={handleTransaction} className=" no-underline hover:underline rounded bg-green-500 hover:bg-blue-600 p-2 ml-10 mr-3 mt-3 mb-3">
         <FaCreditCard />
         Transactions
       </button>
@@ -34,7 +42,7 @@ export default function navbar() {
         <FaUser />
         Users
       </button>
-      <button className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2 py-3 px-3 ml-128 mt-3 mb-2">
+      <button className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2  px-3 ml-3 mt-3 mb-2">
         <LuLogOut />
         LogOut
       </button>
