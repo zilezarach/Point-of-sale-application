@@ -11,3 +11,4 @@ export const createTransaction = async (transaction) => {
   const db = client.db("pos");
   return db.collection("transactions").insertOne(transaction);
 };
+
