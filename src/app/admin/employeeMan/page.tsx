@@ -8,8 +8,7 @@ export default function Page() {
       <div className="w-1/4">
         <Sidebar />
       </div>
-      <div className="w-3/4 p-6">
-        <h2 className="font-bold text-2xl mb-6">Employee Management</h2>
+      <div className="w-3/4 p-4">
         <AddEmployeeForm />
       </div>
     </div>
