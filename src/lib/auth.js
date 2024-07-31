@@ -1,5 +1,5 @@
 import clientPromise from "./db";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 export const registerUser = async (username, password) => {
   const client = await clientPromise;

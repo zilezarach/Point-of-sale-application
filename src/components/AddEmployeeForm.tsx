@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
+import { FaTrashAlt } from "react-icons/fa";
 interface Employee {
   _id: string;
   email: string;
@@ -42,7 +42,7 @@ const AddEmployeeForm = () => {
       setPassword("");
       fetchEmployees();
     } catch (error) {
-      console.error("Error adding employee:", error)
+      console.error("Error adding employee:", error);
       setError("Cannot add Employee");
     }
   };
@@ -50,10 +50,9 @@ const AddEmployeeForm = () => {
   const handleRemoveEmployee = async (id: string) => {
     try {
       await axios.delete(`/api/employees/${id}`);
-      fetchEmployees();
+      setEmployees(employees.filter((employee) => employee._id !== id));
     } catch (error) {
-      console.error("Error removing employee:", error);
-      setError("Unable to remove employee")
+      setError("Failed to delete employee");
     }
   };
 
@@ -116,25 +115,43 @@ const AddEmployeeForm = () => {
         Register
       </button>
       <h2 className="text-rose-600 font-bold mb-6 text-2xl">Employee Roster</h2>
-      <ul>
-        {employees.map((employee) => (
-          <li
-            key={employee._id}
-            className="flex justify-items-center mb-2 bg-rose-600"
-          >
-            <span className="border rounded border-rose-600">
-              {employee.name} ({employee.email}) - {employee.role}
-              {employee.username}
-            </span>
-            <button
-              onClick={() => handleRemoveEmployee(employee._id)}
-              className="rounded bg-blue-500 text-white mb-4 p-3"
-            >
-              Remove
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className="container mx-auto p-3">
+        <div className="max-w-2xl mx-auto">
+          <table className="min-w-full bg-white rounded">
+            <thead>
+              <tr>
+                <th className="py-3 font-bold text-rose-600">Name</th>
+                <th className="py-3 font-bold text-rose-600">Role</th>
+                <th className="py-3 font-bold text-rose-600">Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees.map((employee) => (
+                <tr key={employee._id}>
+                  <td className="border px-4 py-2 font-bold text-rose-600">
+                    {employee.name}
+                  </td>
+                  <td className="border px-4 py-2 font-bold text-black text-center">
+                    {employee.role}
+                  </td>
+
+                  <td className="border px-4 py-2 text-black font-bold">
+                    {employee.email}
+                  </td>
+                  <td className="border px-4 py-2">
+                    <button
+                      onClick={() => handleRemoveEmployee(employee._id)}
+                      className="bg-rose-600 text-white hover:bg-indigo-700"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
