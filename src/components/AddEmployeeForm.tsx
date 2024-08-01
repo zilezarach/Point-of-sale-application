@@ -40,6 +40,7 @@ const AddEmployeeForm = () => {
       await axios.post("/api/employees", { username, password, role });
       setUsername("");
       setPassword("");
+      setRole("");
       fetchEmployees();
     } catch (error) {
       console.error("Error adding employee:", error);
