@@ -25,11 +25,11 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
   const handlesubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await axios.post("api/products", {
+      const response = await axios.post("/api/products", {
         name: name,
         description: description,
         price: parseFloat(price),
-        quantity: parseInt(stock, 10),
+        stock: parseInt(stock, 10),
       });
       if (response.status === 200) {
         setSuccess("Product added/updated successfully");

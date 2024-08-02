@@ -1,19 +1,31 @@
 import { NextResponse } from "next/server";
-import { verifyToken, getCurrentUser } from "../../../../lib/auth";
+import clientPromise from "../../../../lib/db";
 
-export async function GET(req) {
-  const { authorization } = req.headers;
-  if (!authorization) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const token = authorization.split(" ")[1];
-
+export async function GET() {
   try {
-    const decoded = verifyToken(token);
-    const user = await getCurrentUser(decoded.id);
-    return NextResponse.json(user);
+    const client = await clientPromise;
+    const db = client.db("pos");
+
+    const currentUsers = await db
+      .collection("users")
+      .find({ current: true })
+      .toArray();
+    const previousUsers = await db
+      .collection("users")
+      .find({ current: false })
+      .toArray();
+
+    return NextResponse.json({
+      current: currentUsers.map((user) => ({
+        id: user._id.toString(),
+        name: user.name,
+      })),
+      previous: previousUsers.map((user) => ({
+        id: user._id.toString(),
+        name: user.name,
+      })),
+    });
   } catch (error) {
-    return NextResponse.json({ message: error.message }, { status: 401 });
+    return NextResponse.error();
   }
 }

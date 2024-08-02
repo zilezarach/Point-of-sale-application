@@ -1,43 +1,31 @@
 import { NextResponse } from "next/server";
-import clientPromise from "../../../../lib/db";
+import clientPromise from "../../../lib/db";
 import { ObjectId } from "mongodb";
 
-export async function GET(request) {
+export async function GET(req) {
   try {
     const client = await clientPromise;
-    const db = client.db();
+    const db = client.db("pos");
     const products = await db.collection("products").find({}).toArray();
-    return NextResponse.json(products);
+    return new Response(JSON.stringify(products), { status: 200 });
   } catch (error) {
-    console.error("Error fetching products:", error);
-    return NextResponse.error();
+    return new Response(JSON.stringify({ error: "Failed to fetch products" }), {
+      status: 500,
+    });
   }
 }
 
-export async function POST(request) {
+export async function POST(req) {
   try {
     const client = await clientPromise;
-    const db = client.db();
-
-    const { name, category, price, stock, description, imageUrl } =
-      await request.json();
-
-    const newProduct = {
-      name,
-      price,
-      stock,
-      description,
-    };
-
-    const result = await db.collection("products").insertOne(newProduct);
-
-    if (result.insertedCount === 1) {
-      return NextResponse.json({ success: true });
-    } else {
-      return NextResponse.json({ success: false });
-    }
+    const db = client.db("pos");
+    const { name, price, stock, description } = await req.json();
+    const product = { name, price, stock, description };
+    await db.collection("products").insertOne(product);
+    return new Response(JSON.stringify({ success: true }), { status: 201 });
   } catch (error) {
-    console.error("Error adding product:", error);
-    return NextResponse.error();
+    return new Response(JSON.stringify({ error: "Failed to add product" }), {
+      status: 500,
+    });
   }
 }

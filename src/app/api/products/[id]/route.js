@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import clientPromise from "../../../../../lib/db";
+import clientPromise from "../../../../lib/db";
 import { ObjectId } from "mongodb";
 
 export async function DELETE(request, { params }) {
