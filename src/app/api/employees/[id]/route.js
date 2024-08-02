@@ -1,27 +1,45 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-import getDb from "../../../../lib/db";
+import clientPromise from "../../../../lib/db";
 
-export default async function handler(req, res) {
-  if (req.method === "DELETE") {
-    const { id } = req.query;
+export async function GET() {
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    const employees = await db.collection("employees").find().toArray();
+    return NextResponse.json(employees);
+  } catch (error) {
+    return NextResponse.error();
+  }
+}
 
-    try {
-      const db = await getDb();
-      const result = await db
-        .collection("employees")
-        .deleteOne({ _id: new ObjectId(id) });
+export async function POST(request) {
+  try {
+    const { name, email } = await request.json();
+    const client = await clientPromise;
+    const db = client.db();
+    const result = await db
+      .collection("employees")
+      .insertOne({ name, email, role });
+    return NextResponse.json(result.insertedId);
+  } catch (error) {
+    return NextResponse.error();
+  }
+}
 
-      if (result.deletedCount === 1) {
-        res.status(200).json({ message: "Employee deleted successfully" });
-      } else {
-        res.status(404).json({ error: "Employee not found" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
+export async function DELETE(request, { params }) {
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    const result = await db
+      .collection("employees")
+      .deleteOne({ _id: new ObjectId(params.id) });
+    if (result.deletedCount === 1) {
+      return NextResponse.json({ success: true });
+    } else {
+      return NextResponse.json({ success: false });
     }
-  } else {
-    res.setHeader("Allow", ["DELETE"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+  } catch (error) {
+    return NextResponse.error();
   }
 }

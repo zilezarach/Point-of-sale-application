@@ -37,10 +37,18 @@ const AddEmployeeForm = () => {
 
   const handleAddEmployee = async () => {
     try {
-      await axios.post("/api/employees", { username, password, role });
+      await axios.post("/api/employees", {
+        name,
+        username,
+        password,
+        role,
+        email,
+      });
+      setName("");
       setUsername("");
       setPassword("");
       setRole("");
+      setEmail("");
       fetchEmployees();
     } catch (error) {
       console.error("Error adding employee:", error);
@@ -70,7 +78,7 @@ const AddEmployeeForm = () => {
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded border border-rose-600 w-1/2 text-black"
+          className="rounded border border-rose-600 w-1/2 text-black font-bold"
         />
       </div>
       <div className="mb-4">
@@ -79,7 +87,7 @@ const AddEmployeeForm = () => {
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="rounded border border-rose-600 w-1/2 text-black"
+          className="rounded border border-rose-600 w-1/2 text-black font-bold"
         />
       </div>
       <div className="mb-4">
@@ -88,7 +96,7 @@ const AddEmployeeForm = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded border border-rose-600 w-1/2 text-black"
+          className="rounded border border-rose-600 w-1/2 text-black font-bold"
         />
       </div>
       <div className="mb-4">

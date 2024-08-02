@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { clientPromise } from "../../../lib/db";
+import clientPromise from "../../../lib/db";
 
 export async function GET() {
   try {
@@ -14,12 +14,12 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const { name, position, salary } = await request.json();
+    const { name, role, email } = await request.json();
     const client = await clientPromise;
     const db = client.db("pos");
     const result = await db
       .collection("employees")
-      .insertOne({ name, position, salary });
+      .insertOne({ name, role, email });
     return NextResponse.json(result.insertedId);
   } catch (error) {
     return NextResponse.error();

@@ -1,37 +1,25 @@
 import { NextResponse } from "next/server";
-import {
-  getProductById,
-  updateProduct,
-  deleteProduct,
-} from "../../../../lib/product";
+import clientPromise from "../../../../../lib/db";
+import { ObjectId } from "mongodb";
 
-export async function GET(req, { params }) {
+export async function DELETE(request, { params }) {
   const { id } = params;
-  try {
-    const product = await getProductById(id);
-    return NextResponse.json(product);
-  } catch (error) {
-    return NextResponse.json({ message: error.message }, { status: 404 });
-  }
-}
 
-export async function PUT(req, { params }) {
-  const { id } = params;
-  const update = await req.json();
   try {
-    const result = await updateProduct(id, update);
-    return NextResponse.json(result);
-  } catch (error) {
-    return NextResponse.json({ message: error.message }, { status: 400 });
-  }
-}
+    const client = await clientPromise;
+    const db = client.db();
 
-export async function DELETE(req, { params }) {
-  const { id } = params;
-  try {
-    const result = await deleteProduct(id);
-    return NextResponse.json(result);
+    const result = await db
+      .collection("products")
+      .deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 1) {
+      return NextResponse.json({ success: true });
+    } else {
+      return NextResponse.json({ success: false });
+    }
   } catch (error) {
-    return NextResponse.json({ message: error.message }, { status: 400 });
+    console.error("Error deleting product:", error);
+    return NextResponse.error();
   }
 }
