@@ -7,11 +7,11 @@ export async function GET() {
     const db = client.db("pos");
 
     const currentUsers = await db
-      .collection("users")
+      .collection("employees")
       .find({ current: true })
       .toArray();
     const previousUsers = await db
-      .collection("users")
+      .collection("employees")
       .find({ current: false })
       .toArray();
 
