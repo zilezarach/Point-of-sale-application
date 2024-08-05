@@ -52,9 +52,16 @@ export default function navbar() {
     SetIsUserPopOpen(true);
   };
 
+  const handleOrder = () => {
+    router.push("/Orders");
+  };
+
   return (
     <div className="p-2">
-      <button className=" no-underline hover:underline  rounded bg-rose-600 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3">
+      <button
+        onClick={handleOrder}
+        className=" no-underline hover:underline  rounded bg-rose-600 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3"
+      >
         <FcCustomerSupport />
         Customer Orders
       </button>
