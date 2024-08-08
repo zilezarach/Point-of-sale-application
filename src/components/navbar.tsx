@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AiOutlineProduct } from "react-icons/ai";
@@ -56,6 +56,10 @@ export default function navbar() {
     router.push("/Orders");
   };
 
+  const handleCustomer = () => {
+    router.push("/Customers");
+  };
+
   return (
     <div className="p-2">
       <button
@@ -65,7 +69,10 @@ export default function navbar() {
         <FcCustomerSupport />
         Customer Orders
       </button>
-      <button className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3">
+      <button
+        onClick={handleCustomer}
+        className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3"
+      >
         <BiMaleFemale />
         Customers
       </button>
