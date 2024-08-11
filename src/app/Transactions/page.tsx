@@ -116,14 +116,16 @@ export default function Page() {
         <tbody>
           {transactions.slice(0, 10).map((transaction, index) => (
             <tr key={index}>
-              <td className="py-2 px-4 border-b">
+              <td className="py-2 px-4 border-b text-black">
                 {new Date(transaction.date).toLocaleDateString()}
               </td>
-              <td className="py-2 px-4 border-b">{transaction.productName}</td>
-              <td className="py-2 px-4 border-b">
+              <td className="py-2 px-4 border-b text-black">
+                {transaction.productName}
+              </td>
+              <td className="py-2 px-4 border-b text-black font-bold">
                 ${transaction.amount.toFixed(2)}
               </td>
-              <td className="py-2 px-4 border-b">
+              <td className="py-2 px-4 border-b text-black font-bold">
                 {transaction.paymentMethod}
               </td>
             </tr>
