@@ -4,28 +4,30 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import axios from "axios";
 
-const signIn = () => {
+const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       const response = await axios.post("/api/auth/login", {
         username,
         password,
       });
+      const { role } = response.data;
 
-      setError("Login successful");
-
-      if (response.data.role === "admin") {
-        router.push("/admin");
-      } else {
-        if (response.data.role === "employee") router.push("/POs");
+      // Redirect based on user role
+      if (role === "Manager") {
+        router.push("/admin"); // Admin page
+      } else if (role === "employee") {
+        router.push("/POs"); // POS page for employees
       }
     } catch (error) {
-      setError("Login failed");
+      setError("Invalid username or password");
     }
   };
 
@@ -44,9 +46,7 @@ const signIn = () => {
             Sign In
           </h2>
           {error && (
-            <p className=" border border-blue-800 rounded bg-rose-500 text-black font-bold mb-4">
-              {error}
-            </p>
+            <p className="text-rose-600 text-center font-bold mb-4">{error}</p>
           )}
           <div className="mb-4">
             <label
@@ -93,4 +93,4 @@ const signIn = () => {
   );
 };
 
-export default signIn;
+export default SignIn;
