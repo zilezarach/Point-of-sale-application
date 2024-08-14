@@ -15,7 +15,6 @@ const createDummyData = async () => {
   const database = client.db("pos");
 
   const employeesCollection = database.collection("employees");
-  const usersCollection = database.collection("users");
   const productsCollection = database.collection("products");
   const customersCollection = database.collection("customers");
   const transactionsCollection = database.collection("transactions");
@@ -40,20 +39,6 @@ const createDummyData = async () => {
     },
   ];
 
-  const users = [
-    {
-      id: "1",
-      username: "admin",
-      password: await hashPassword("admin123"),
-      role: "admin",
-    },
-    {
-      id: "2",
-      username: "employee",
-      password: await hashPassword("employee123"),
-      role: "employee",
-    },
-  ];
 
   const products = [
     {
@@ -154,7 +139,6 @@ const createDummyData = async () => {
   ];
 
   await employeesCollection.insertMany(employees);
-  await usersCollection.insertMany(users);
   await productsCollection.insertMany(products);
   await customersCollection.insertMany(customers);
   await transactionsCollection.insertMany(transactions);

@@ -6,7 +6,7 @@ interface User {
 }
 
 interface UserProps {
-  isopen: boolean;
+  isOpen: boolean;
   onClose: () => void;
   users: {
     current: User[];
@@ -14,8 +14,8 @@ interface UserProps {
   };
 }
 
-const userPOP: React.FC<UserProps> = ({ isopen, onClose, users }) => {
-  if (!isopen) return null;
+const userPOP: React.FC<UserProps> = ({ isOpen, onClose, users }) => {
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -39,9 +39,9 @@ const userPOP: React.FC<UserProps> = ({ isopen, onClose, users }) => {
             />
           </svg>
         </button>
-        <h2 className="text-xl font-bold mb-4">User History</h2>
+        <h2 className="text-xl font-bold mb-4 text-center no-underline hover:underline text-rose-600">User History</h2>
         <div>
-          <h3 className="text-lg font-semibold">Current Users</h3>
+          <h3 className="text-rose-600 font-semibold">Current Users</h3>
           <ul>
             {users.current.map((user) => (
               <li key={user.id} className="py-2">
@@ -49,7 +49,7 @@ const userPOP: React.FC<UserProps> = ({ isopen, onClose, users }) => {
               </li>
             ))}
           </ul>
-          <h3 className="text-lg font-semibold mt-4">Previous Users</h3>
+          <h3 className=" text-rose-600 font-semibold mt-4">Previous Users</h3>
           <ul>
             {users.previous.map((user) => (
               <li key={user.id} className="py-2">

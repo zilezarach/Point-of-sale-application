@@ -1,6 +1,6 @@
 "use client";
 
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/NavBar";
 
 import React, { useState, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";

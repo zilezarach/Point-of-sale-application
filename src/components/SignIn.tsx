@@ -60,7 +60,8 @@ const SignIn = () => {
               id="username"
               name="username"
               value={username}
-              className="px-3 py-2 w-full border-2 border-rose-500 text-black focus:outline-none"
+              placeholder="Username"
+              className="px-3 py-2 w-full border-2 rounded border-rose-500 text-black focus:outline-none"
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
@@ -73,7 +74,8 @@ const SignIn = () => {
               id="password"
               name="password"
               value={password}
-              className="px-3 py-2 w-full border-2 border-rose-500 text-black focus:outline-none"
+              placeholder="Password"
+              className="px-3 py-2 w-full border-2 rounded border-rose-500 text-black focus:outline-none"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>

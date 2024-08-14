@@ -8,7 +8,7 @@ import { FaCreditCard } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { LuLogOut } from "react-icons/lu";
 import { BiMaleFemale } from "react-icons/bi";
-import modal from "./userPOP";
+import Modal from "./UserPOP";
 
 export default function navbar() {
   const router = useRouter();
@@ -93,7 +93,7 @@ export default function navbar() {
         <FaUser />
         Users
       </button>
-      <modal
+      <Modal
         isOpen={isUserPopOpen}
         onClose={() => SetIsUserPopOpen(true)}
         users={users}
