@@ -14,20 +14,35 @@ const SignIn = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("/api/auth/login", {
-        username,
-        password,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
       });
-      const { role } = response.data;
 
-      // Redirect based on user role
-      if (role === "Manager") {
-        router.push("/admin"); // Admin page
-      } else if (role === "employee") {
-        router.push("/POs"); // POS page for employees
+      const data = await response.json();
+      console.log("Login Response:", data); // Debugging
+
+      if (response.ok) {
+        if (data.role === "admin") {
+          console.log("Redirecting to Admin Dashboard...");
+          router.push("/admin");
+        } else if (data.role === "employee") {
+          console.log("Redirecting to POS Page...");
+          router.push("/POs");
+        } else {
+          console.log("Unknown role:", data.role);
+          setError("Unknown role. Please contact support.");
+        }
+      } else {
+        console.log("Invalid credentials");
+        setError("Invalid username or password");
       }
     } catch (error) {
-      setError("Invalid username or password");
+      console.error("An error occurred:", error);
+      setError("Something went wrong. Please try again later.");
     }
   };
 
@@ -80,7 +95,7 @@ const SignIn = () => {
             />
           </div>
           <button
-            onClick={handleSubmit}
+            type="submit"
             className=" flex items-center justify-center bg-rose-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
           >
             Sign In

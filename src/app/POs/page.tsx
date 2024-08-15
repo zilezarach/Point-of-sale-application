@@ -19,6 +19,7 @@ interface Product {
   description: string;
   price: number;
   image: string;
+  stock: string;
 }
 
 export default function Page() {
@@ -27,34 +28,51 @@ export default function Page() {
   const [grossPrice, setGrossPrice] = useState<number>(0);
   const [scannedItems, setScannedItems] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
-  const [barcode, setBarcode] = useState<string>('');
-  const [productId, setProductId] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [barcode, setBarcode] = useState<string>("");
+  const [productId, setProductId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [productList, setProductList] = useState<Product[]>([]);
+  const [error, setError] = useState(null);
 
-  const fetchProductDetails = async (id: string, type: 'barcode' | 'productId') => {
-    const response = await fetch('/api/products/$[id]?type=${type}');
+  const fetchProductDetails = async (
+    id: string,
+    type: "barcode" | "productId",
+  ) => {
+    const response = await fetch("/api/products/$[id]?type=${type}");
     const productData = await response.json();
     setProduct(productData);
-  }
+  };
 
   const handleBarcodeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBarcode(e.target.value);
-  }
+  };
 
   const handleProductID = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProductId(e.target.value);
-  }
+  };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  }
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(`/api/products/${searchQuery}`);
+      if (!response.ok) {
+        throw new Error("Product not found");
+      }
+      const data = await response.json();
+      setProduct(data);
+      setError(null);
+    } catch (error) {
+      setProduct(null);
+    }
+  };
 
   const addToCheckout = () => {
     if (product) {
       const newScannedItem = [...scannedItems, product];
       setScannedItems(newScannedItem);
-      const newTotalPrice = newScannedItem.reduce((acc, item) => acc + item.price, 0);
+      const newTotalPrice = newScannedItem.reduce(
+        (acc, item) => acc + item.price,
+        0,
+      );
       const newGrossPrice = newTotalPrice * 1.5;
 
       setTotalPrice(newTotalPrice);
@@ -65,18 +83,17 @@ export default function Page() {
   const handleScan = () => {
     if (barcode) {
       fetchProductDetails(barcode, "barcode").then(addToCheckout);
-
     } else if (productId) {
-      fetchProductDetails(productId, 'productId').then(addToCheckout);
+      fetchProductDetails(productId, "productId").then(addToCheckout);
     }
-  }
+  };
 
   const resetCheckout = () => {
     setScannedItems([]);
     setTotalPrice(0);
     setGrossPrice(0);
     setProduct(null);
-    setBarcode('');
+    setBarcode("");
   };
 
   const handlePayment = (method: string) => {
@@ -85,43 +102,27 @@ export default function Page() {
       totalPrice,
       grossPrice,
       paymentMethod: method,
-      status: 'Completed'
+      status: "Completed",
     };
-    fetch('api/transactions', {
-      method: 'POST',
+    fetch("api/transactions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(transactionData)
-    }).then(response => {
+      body: JSON.stringify(transactionData),
+    }).then((response) => {
       if (response.ok) {
-        alert('Payment Successful with ${method}');
+        alert("Payment Successful with ${method}");
         resetCheckout();
       } else {
-        alert('Payment failed. Please try again');
+        alert("Payment failed. Please try again");
       }
-    })
-
-  }
+    });
+  };
 
   const handleCancel = () => {
     resetCheckout();
-  }
-
-  const fetchProductName = async (name: string) => {
-    if (name.trim() === '') {
-      setProductList([]);
-      return;
-    }
-    const response = await fetch('api/products?name=${name}');
-    const productsData = await response.json()
-    setProductList(productsData);
-  }
-
-  useEffect(() => {
-    fetchProductName(searchQuery);
-
-  }, [searchQuery]);
+  };
 
   return (
     <div className="bg-gray-300 container-none mx-auto px-4">
@@ -136,7 +137,10 @@ export default function Page() {
               onChange={handleBarcodeInput}
               value={barcode}
             />
-            <button onClick={handleScan} className=" rounded-r  bg-rose-600 hover:bg-blue-600 p-2.5">
+            <button
+              onClick={handleScan}
+              className=" rounded-r  bg-rose-600 hover:bg-blue-600 p-2.5"
+            >
               <FaCheck />
             </button>
           </div>
@@ -148,7 +152,12 @@ export default function Page() {
               type="text"
               className="border rounded border-rose-600 text-black font-bold w-15 shadow-md focus:outline-none p-2"
             />
-            <button onClick={handleScan} className="rounded-r bg-rose-600 hover:bg-blue-600 p-2.5"><FaCheck /></button>
+            <button
+              onClick={handleScan}
+              className="rounded-r bg-rose-600 hover:bg-blue-600 p-2.5"
+            >
+              <FaCheck />
+            </button>
           </div>
           <table className=" w-4/5 mb-144 shadow rounded ml-5 mr-2">
             <thead>
@@ -161,9 +170,13 @@ export default function Page() {
             <tbody>
               {scannedItems.map((item, index) => (
                 <tr key={index}>
-                  <td className="text-black border p-2 font-bold">{item.name}</td>
+                  <td className="text-black border p-2 font-bold">
+                    {item.name}
+                  </td>
                   <td className="text-black border p-2 font-bold">1</td>
-                  <td className="text-black border p-2 font-bold">{item.price}</td>
+                  <td className="text-black border p-2 font-bold">
+                    {item.price}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -172,8 +185,11 @@ export default function Page() {
           <div className="mb-8">
             <div className="grid grid-cols-2">
               <div className="text-black font-bold ml-3 mb-3">Total Items:</div>
-              <div className="text-black font-bold mb-3">Price:{totalPrice.toFixed(2)}</div>
-              <div className="text-black font-bold mt-4 ml-3">Discount:
+              <div className="text-black font-bold mb-3">
+                Price:{totalPrice.toFixed(2)}
+              </div>
+              <div className="text-black font-bold mt-4 ml-3">
+                Discount:
                 <input
                   type="number"
                   placeholder="Discount on item"
@@ -185,15 +201,24 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <button onClick={() => handlePayment('Mobile Money')} className="rounded-full bg-green-500 hover:bg-rose-600  ml-3 mb-3 p-2">
+          <button
+            onClick={() => handlePayment("Mobile Money")}
+            className="rounded-full bg-green-500 hover:bg-rose-600  ml-3 mb-3 p-2"
+          >
             <MdSendToMobile />
             Mobile
           </button>
-          <button onClick={() => handlePayment('Cash')} className="rounded-full bg-blue-600 hover:bg-green-600 ml-8 mb-3 p-2">
+          <button
+            onClick={() => handlePayment("Cash")}
+            className="rounded-full bg-blue-600 hover:bg-green-600 ml-8 mb-3 p-2"
+          >
             <HiOutlineCash />
             Cash
           </button>
-          <button onClick={handleCancel} className="rounded-full bg-black hover:bg-cyan-800 ml-10 mb-3 p-2">
+          <button
+            onClick={handleCancel}
+            className="rounded-full bg-black hover:bg-cyan-800 ml-10 mb-3 p-2"
+          >
             <FcCancel />
             Cancel
           </button>
@@ -205,17 +230,29 @@ export default function Page() {
         <div className=" rounded w-2/3 bg-white shadow-md mt-5 ml-5 mr-4 mb-5">
           <div className="mt-4 mb-4 ml-4 mr-4">
             <input
-              onChange={handleSearch}
+              onChange={(e) => setSearchQuery(e.target.value)}
               value={searchQuery}
               type="text"
               placeholder="Search for Product"
-              className="border rounded text-black shadow-md focus:outline-none p-2 w-full"
+              className="border rounded text-black shadow-md focus:outline-none p-2 w-96"
             />
+            <button
+              onClick={handleSearch}
+              className="rounded-r bg-rose-600 hover:bg-indigo-600 p-3"
+            >
+              <FaCheck />
+            </button>
           </div>
           {product && (
-            <div className="p-4 border rounded">
-              <h2 className="text-lg mb-2">{product.name}</h2>
-              <p>{product.description}</p>
+            <div className="p-4 border rounded-r-none border-rose-600 ml-3 mr-3">
+              <h2 className="text-lg mb-2 text-rose-600 font-bold">
+                {product.name}
+              </h2>
+              <p className="font-bold text-black">{product.description}</p>
+              <h1 className="text-rose-600 mt-2 mb-2 underline">
+                In Stock: {product.stock}
+              </h1>
+              <p className="text-rose-600 font-bold">Price:{product.price}</p>
             </div>
           )}
         </div>

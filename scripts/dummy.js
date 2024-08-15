@@ -24,7 +24,7 @@ const createDummyData = async () => {
     {
       id: "1",
       name: "Alice Johnson",
-      role: "Manager",
+      role: "admin",
       email: "alice@company.com",
       username: "alicej",
       password: await hashPassword("password123"),
@@ -32,13 +32,12 @@ const createDummyData = async () => {
     {
       id: "2",
       name: "Bob Brown",
-      role: "Cashier",
+      role: "employee",
       email: "bob@company.com",
       username: "bobb",
       password: await hashPassword("password123"),
     },
   ];
-
 
   const products = [
     {

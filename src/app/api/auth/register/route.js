@@ -27,7 +27,9 @@ export async function POST(request) {
   await db.collection("employees").insertOne(newUser);
 
   return NextResponse.json(
-    { message: "User registered successfully" },
+    {
+      message: "User Registered Successfully",
+    },
     { status: 201 },
   );
 }

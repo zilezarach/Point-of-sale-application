@@ -34,8 +34,5 @@ export async function POST(request) {
     { expiresIn: "1h" },
   );
 
-  return NextResponse.json(
-    { token, message: "Login successful" },
-    { status: 200 },
-  );
+  return NextResponse.json({ token, role: employee.role }, { status: 200 });
 }

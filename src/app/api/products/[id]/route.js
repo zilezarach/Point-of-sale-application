@@ -23,19 +23,30 @@ export async function DELETE(request, { params }) {
     return NextResponse.error();
   }
 }
-export async function GET(req, res) {
-  const { id } = req.query;
+export async function GET(request, { params }) {
+  const client = await clientPromise;
+  const db = client.db("pos"); // Assuming 'pos' is your database name
+  const { id } = params;
 
   try {
-    const db = await clientPromise();
-    const product = await db.collection("products").findOne({ id });
+    const query = { $or: [{ productId: id }, { name: new RegExp(id, "i") }] };
+    const product = await db.collection("products").findOne(query);
 
     if (product) {
-      return res.status(200).json(product);
+      return new Response(JSON.stringify(product), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     } else {
-      return res.status(404).json({ message: "Product not found" });
+      return new Response(JSON.stringify({ error: "Product not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
   } catch (error) {
-    return res.status(500).json({ message: "Failed to fetch product details" });
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
