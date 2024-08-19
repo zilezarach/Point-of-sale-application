@@ -1,31 +1,14 @@
 import { NextResponse } from "next/server";
-import clientPromise from "../../../../lib/db";
+import { getUsers } from "../../../lib/db"; // Make sure to implement getUsers in your lib
 
 export async function GET() {
   try {
-    const client = await clientPromise;
-    const db = client.db("pos");
-
-    const currentUsers = await db
-      .collection("employees")
-      .find({ current: true })
-      .toArray();
-    const previousUsers = await db
-      .collection("employees")
-      .find({ current: false })
-      .toArray();
-
-    return NextResponse.json({
-      current: currentUsers.map((user) => ({
-        id: user._id.toString(),
-        name: user.name,
-      })),
-      previous: previousUsers.map((user) => ({
-        id: user._id.toString(),
-        name: user.name,
-      })),
-    });
+    const employees = await getUsers(); // Fetch users from your database
+    return NextResponse.json(employees);
   } catch (error) {
-    return NextResponse.error();
+    return NextResponse.json(
+      { message: "Error fetching users" },
+      { status: 500 },
+    );
   }
 }

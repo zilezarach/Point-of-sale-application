@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface User {
   id: string;
@@ -14,9 +14,35 @@ interface UserProps {
   };
 }
 
-const userPOP: React.FC<UserProps> = ({ isOpen, onClose, users }) => {
+const UserPOP: React.FC<UserProps> = ({ isOpen, onClose, users }) => {
   if (!isOpen) return null;
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [previousUsers, setPreviousUsers] = useState<any[]>([]);
 
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("/api/users/current");
+        const data = await response.json();
+        setCurrentUser(data);
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+      }
+    };
+
+    const fetchPreviousUsers = async () => {
+      try {
+        const response = await fetch("/api/users");
+        const data = await response.json();
+        setPreviousUsers(data);
+      } catch (error) {
+        console.error("Failed to fetch previous users:", error);
+      }
+    };
+
+    fetchCurrentUser();
+    fetchPreviousUsers();
+  }, []);
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
@@ -39,7 +65,9 @@ const userPOP: React.FC<UserProps> = ({ isOpen, onClose, users }) => {
             />
           </svg>
         </button>
-        <h2 className="text-xl font-bold mb-4 text-center no-underline hover:underline text-rose-600">User History</h2>
+        <h2 className="text-xl font-bold mb-4 text-center no-underline hover:underline text-rose-600">
+          User History
+        </h2>
         <div>
           <h3 className="text-rose-600 font-semibold">Current Users</h3>
           <ul>
@@ -63,4 +91,4 @@ const userPOP: React.FC<UserProps> = ({ isOpen, onClose, users }) => {
   );
 };
 
-export default userPOP;
+export default UserPOP;

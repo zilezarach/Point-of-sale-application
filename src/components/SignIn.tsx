@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import axios from "axios";
+import Spinner from "./Spinner";
 
 const SignIn = () => {
   const [username, setUsername] = useState("");
@@ -10,9 +11,11 @@ const SignIn = () => {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -43,6 +46,8 @@ const SignIn = () => {
     } catch (error) {
       console.error("An error occurred:", error);
       setError("Something went wrong. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -98,7 +103,13 @@ const SignIn = () => {
             type="submit"
             className=" flex items-center justify-center bg-rose-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
           >
-            Sign In
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <Spinner />
+              </div>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
       </div>

@@ -10,14 +10,23 @@ import { LuLogOut } from "react-icons/lu";
 import { BiMaleFemale } from "react-icons/bi";
 import Modal from "./UserPOP";
 
-export default function navbar() {
+export default function Navbar() {
   const router = useRouter();
   const handleTransaction = () => {
     router.push("/Transactions");
   };
 
-  const handleLogOut = () => {
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      // Redirect to login page or home page after logout
+      router.push("/login");
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
   };
 
   interface User {
@@ -76,9 +85,6 @@ export default function navbar() {
         <BiMaleFemale />
         Customers
       </button>
-      <button className=" no-underline hover:underline rounded bg-green-500 hover:bg-blue-600 p-2 ml-128 mr-3 mt-3 mb-3">
-        <FcSettings />
-      </button>
       <button
         onClick={handleTransaction}
         className=" no-underline hover:underline rounded bg-green-500 hover:bg-blue-600 p-2 ml-10 mr-3 mt-3 mb-3"
@@ -99,7 +105,7 @@ export default function navbar() {
         users={users}
       />
       <button
-        onClick={handleLogOut}
+        onClick={handleLogout}
         className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2  px-3 ml-3 mt-3 mb-2"
       >
         <LuLogOut />

@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { fetchExternalImage } from "next/dist/server/image-optimizer";
 
 interface Product {
-  productId: string;
+  id: string;
   barcode: string;
   name: string;
   description: string;
@@ -24,31 +24,38 @@ interface Product {
 
 export default function Page() {
   const router = useRouter();
-  const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [grossPrice, setGrossPrice] = useState<number>(0);
-  const [scannedItems, setScannedItems] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [barcode, setBarcode] = useState<string>("");
   const [productId, setProductId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [productList, setProductList] = useState<Product[]>([]);
-  const [error, setError] = useState(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [error, setError] = useState("");
 
-  const fetchProductDetails = async (
-    id: string,
-    type: "barcode" | "productId",
-  ) => {
-    const response = await fetch("/api/products/$[id]?type=${type}");
-    const productData = await response.json();
-    setProduct(productData);
+  const fetchProduct = async (id: string) => {
+    try {
+      const response = await fetch(`/api/products/${id}`);
+      if (!response.ok) throw new Error("Product not found");
+      const product = await response.json();
+      setProducts((prev) => [...prev, product]);
+      setProductId("");
+    } catch (error) {
+      setError("Product not found");
+    }
   };
 
-  const handleBarcodeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBarcode(e.target.value);
+  const handleAddProduct = () => {
+    if (productId) fetchProduct(productId);
   };
 
-  const handleProductID = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProductId(e.target.value);
+  const handleScan = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const id = event.target.value;
+    setProductId(id);
+    if (id) fetchProduct(id);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (productId) fetchProduct(productId);
   };
 
   const handleSearch = async () => {
@@ -59,46 +66,22 @@ export default function Page() {
       }
       const data = await response.json();
       setProduct(data);
-      setError(null);
+      setError("Product not Found");
     } catch (error) {
       setProduct(null);
     }
   };
 
-  const addToCheckout = () => {
-    if (product) {
-      const newScannedItem = [...scannedItems, product];
-      setScannedItems(newScannedItem);
-      const newTotalPrice = newScannedItem.reduce(
-        (acc, item) => acc + item.price,
-        0,
-      );
-      const newGrossPrice = newTotalPrice * 1.5;
+  const TAX_RATE = 0.07;
 
-      setTotalPrice(newTotalPrice);
-      setGrossPrice(newGrossPrice);
-    }
-  };
-
-  const handleScan = () => {
-    if (barcode) {
-      fetchProductDetails(barcode, "barcode").then(addToCheckout);
-    } else if (productId) {
-      fetchProductDetails(productId, "productId").then(addToCheckout);
-    }
-  };
-
-  const resetCheckout = () => {
-    setScannedItems([]);
-    setTotalPrice(0);
-    setGrossPrice(0);
-    setProduct(null);
-    setBarcode("");
-  };
+  const totalItems = products.length;
+  const totalPrice = products.reduce((acc, product) => acc + product.price, 0);
+  const taxAmount = totalPrice * TAX_RATE;
+  const grossPrice = totalPrice + taxAmount;
 
   const handlePayment = (method: string) => {
     const transactionData = {
-      items: scannedItems,
+      items: products,
       totalPrice,
       grossPrice,
       paymentMethod: method,
@@ -113,7 +96,7 @@ export default function Page() {
     }).then((response) => {
       if (response.ok) {
         alert("Payment Successful with ${method}");
-        resetCheckout();
+        handleCancel();
       } else {
         alert("Payment failed. Please try again");
       }
@@ -121,7 +104,7 @@ export default function Page() {
   };
 
   const handleCancel = () => {
-    resetCheckout();
+    setProducts([]);
   };
 
   return (
@@ -134,27 +117,12 @@ export default function Page() {
               type="text"
               placeholder="Scan Barcode"
               className="border rounded border-rose-600 text-black font-bold w-15 shadow-md focus:outline-none p-2"
-              onChange={handleBarcodeInput}
-              value={barcode}
-            />
-            <button
-              onClick={handleScan}
-              className=" rounded-r  bg-rose-600 hover:bg-blue-600 p-2.5"
-            >
-              <FaCheck />
-            </button>
-          </div>
-          <div className="ml-4 mt-4 w-full flex mb-4">
-            <input
+              onChange={handleScan}
               value={productId}
-              onChange={handleProductID}
-              placeholder="Enter ProductID"
-              type="text"
-              className="border rounded border-rose-600 text-black font-bold w-15 shadow-md focus:outline-none p-2"
             />
             <button
-              onClick={handleScan}
-              className="rounded-r bg-rose-600 hover:bg-blue-600 p-2.5"
+              onClick={handleAddProduct}
+              className=" rounded-r  bg-rose-600 hover:bg-blue-600 p-2.5"
             >
               <FaCheck />
             </button>
@@ -168,23 +136,24 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {scannedItems.map((item, index) => (
-                <tr key={index}>
+              {products.map((product) => (
+                <tr key={product.id}>
                   <td className="text-black border p-2 font-bold">
-                    {item.name}
+                    {product.name}
                   </td>
                   <td className="text-black border p-2 font-bold">1</td>
                   <td className="text-black border p-2 font-bold">
-                    {item.price}
+                    {product.price}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-
           <div className="mb-8">
             <div className="grid grid-cols-2">
-              <div className="text-black font-bold ml-3 mb-3">Total Items:</div>
+              <div className="text-black font-bold ml-3 mb-3">
+                Total Items:{totalItems}
+              </div>
               <div className="text-black font-bold mb-3">
                 Price:{totalPrice.toFixed(2)}
               </div>

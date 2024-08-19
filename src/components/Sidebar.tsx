@@ -1,23 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FcManager } from "react-icons/fc";
 import { TbShoppingCartDollar } from "react-icons/tb";
 import { FcHome } from "react-icons/fc";
+import Spinner from "./Spinner";
 
 const Sidebar = () => {
   const router = useRouter();
-  const handleproduct = () => {
+  const [loading, setLoading] = useState(false);
+  const handleproduct = async () => {
+    setLoading(true);
     router.push("/admin/productMan");
+    setLoading(false);
   };
-  const handleEmployee = () => {
+  const handleEmployee = async () => {
+    setLoading(true);
     router.push("/admin/employeeMan");
+    setLoading(false);
   };
-  const handleHome = () => {
+  const handleHome = async () => {
+    setLoading(true);
     router.push("/admin");
+    setLoading(false);
   };
   return (
     <div className="h-full bg-gray-300 text-white p-4 rounded shadow-sm">
@@ -34,9 +42,18 @@ const Sidebar = () => {
       <div className="mb-5">
         <button
           onClick={handleHome}
+          disabled={loading}
           className="rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
         >
-          <FcHome />
+          {loading ? (
+            <div className="flex justify-center items-center ">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="flex justify-center items-center">
+              <FcHome />
+            </div>
+          )}
           Home
         </button>
       </div>
@@ -44,17 +61,20 @@ const Sidebar = () => {
         <button
           onClick={handleproduct}
           className=" rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
+          disabled={loading}
         >
-          <TbShoppingCartDollar /> Product Management
+          {loading ? <Spinner /> : <TbShoppingCartDollar />}
+          Product Management
         </button>
       </div>
       <div className="mb-5">
         <button
           onClick={handleEmployee}
           className="rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
+          disabled={loading}
         >
-          <FcManager />
-          Employee Management
+          {loading ? <Spinner /> : <FcManager />}
+          Employee Management.
         </button>
       </div>
     </div>
