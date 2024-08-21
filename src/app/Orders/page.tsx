@@ -30,17 +30,17 @@ export default function Page() {
     customerName: string;
     items: { productName: string; quantity: number }[];
     status: "pending" | "completed";
-    totalAmount: string;
+    totalPrice: number;
   };
 
   useEffect(() => {
     fetch("api/orders")
       .then((res) => res.json())
-      .then((data) => setOrder(data))
+      .then((data) => setOrders(data))
       .catch((error) => console.error("Error fetching orders", error));
   }, []);
 
-  const [order, setOrder] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [weeklyData, setWeeklyData] = useState<number[]>([]);
 
   const processWeeklyData = (order: any[]) => {
@@ -97,28 +97,33 @@ export default function Page() {
         <table className=" table-auto min-w-full bg-white shadow-md rounded ml-4 mr-4">
           <thead>
             <tr>
-              <th className="py-2 text-rose-600 rounded">Customer Name</th>
-              <th className="py-2 text-rose-600 rounded">Items</th>
-              <th className="py-2 text-rose-600 rounded">Total Amount</th>
-              <th className="py-2 text-rose-600 rounded">Status</th>
-              <th className="py-2 text-rose-600 rounded">Date</th>
+              <th className="border px-4 py-2 text-rose-600">Order ID</th>
+              <th className="border px-4 py-2 text-rose-600">Customer Name</th>
+              <th className="border px-4 py-2 text-rose-600">Order Date</th>
+              <th className="border px-4 py-2 text-rose-600">Total Amount</th>
+              <th className="border px-4 py-2 text-rose-600">Status</th>
             </tr>
           </thead>
           <tbody>
-            {order.map((order) => (
+            {orders.map((order) => (
               <tr key={order._id}>
-                <td className="border px-4 py-2">{order.customerName}</td>
-                <td className="border px-4 py-2">
-                  {order.items.map((item, index) => (
-                    <div key={index}>
-                      {item.productName} (x{item.quantity})
-                    </div>
-                  ))}
+                <td className="border px-4 py-2 text-black font-bold">
+                  {order._id}
                 </td>
-                <td className="border px-4 py-2">{order.totalAmount}</td>
-                <td className="border px-4 py-2">{order.status}</td>
-                <td className="border px-4 py-2">
+                <td className="border px-4 py-2 text-black font-bold">
+                  {order.customerName}
+                </td>
+                <td className="border px-4 py-2 text-black font-bold">
                   {new Date(order.date).toLocaleDateString()}
+                </td>
+                <td className="border px-4 py-2 text-black font-bold">
+                  $
+                  {order.totalPrice !== undefined
+                    ? order.totalPrice.toFixed(2)
+                    : "N/A"}
+                </td>
+                <td className="border px-4 py-2 text-rose-600 font-bold">
+                  {order.status}
                 </td>
               </tr>
             ))}

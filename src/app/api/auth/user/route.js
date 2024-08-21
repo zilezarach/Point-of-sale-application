@@ -1,14 +1,24 @@
-import { NextResponse } from "next/server";
-import { getUsers } from "../../../lib/db"; // Make sure to implement getUsers in your lib
+import { NextResponse } from "next/server"; // Make sure to implement getUsers in your lib
+import clientPromise from "../../../../lib/db";
 
-export async function GET() {
+export async function GET(request) {
   try {
-    const employees = await getUsers(); // Fetch users from your database
-    return NextResponse.json(employees);
+    const client = await clientPromise;
+    const db = client.db("pos");
+    const users = await db
+      .collection("employees")
+      .find({})
+      .sort({ loginTime: -1 })
+      .toArray();
+
+    return new Response(JSON.stringify(users), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return NextResponse.json(
-      { message: "Error fetching users" },
-      { status: 500 },
-    );
+    return new Response(JSON.stringify({ error: "Failed to fetch users" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

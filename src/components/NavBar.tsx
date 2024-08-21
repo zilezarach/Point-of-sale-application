@@ -23,42 +23,20 @@ export default function Navbar() {
       });
 
       // Redirect to login page or home page after logout
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       console.error("Failed to log out:", error);
     }
   };
 
-  interface User {
-    id: string;
-    name: string;
-  }
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false);
 
-  interface UsersResponse {
-    current: User[];
-    previous: User[];
-  }
-
-  const [isUserPopOpen, SetIsUserPopOpen] = useState<boolean>(false);
-  const [users, setUsers] = useState<{ current: User[]; previous: User[] }>({
-    current: [],
-    previous: [],
-  });
-
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch("/api/auth/user");
-      if (!response.ok) throw new Error("Network response was not ok");
-      const data: UsersResponse = await response.json();
-      setUsers(data);
-    } catch (error) {
-      console.error("Failed to fetch users:", error);
-    }
+  const handlePopUpOpen = () => {
+    setIsPopUpVisible(true);
   };
 
-  const handleButtonClick = () => {
-    fetchUsers();
-    SetIsUserPopOpen(true);
+  const handlePopUpClose = () => {
+    setIsPopUpVisible(false);
   };
 
   const handleOrder = () => {
@@ -93,17 +71,13 @@ export default function Navbar() {
         Transactions
       </button>
       <button
-        onClick={handleButtonClick}
+        onClick={handlePopUpOpen}
         className=" no-underline hover:underline rounded bg-emerald-500 hover:bg-blue-600 p-2 px-4 ml-3 mr-3 mt-3 mb-3"
       >
         <FaUser />
         Users
       </button>
-      <Modal
-        isOpen={isUserPopOpen}
-        onClose={() => SetIsUserPopOpen(true)}
-        users={users}
-      />
+      {isPopUpVisible && <Modal onClose={handlePopUpClose} />}
       <button
         onClick={handleLogout}
         className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2  px-3 ml-3 mt-3 mb-2"

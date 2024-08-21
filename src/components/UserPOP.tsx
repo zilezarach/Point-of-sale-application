@@ -1,94 +1,81 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 interface User {
-  id: string;
+  _id: string;
   name: string;
+  role: string;
+  loginTime: string;
 }
 
-interface UserProps {
-  isOpen: boolean;
-  onClose: () => void;
-  users: {
-    current: User[];
-    previous: User[];
-  };
-}
-
-const UserPOP: React.FC<UserProps> = ({ isOpen, onClose, users }) => {
-  if (!isOpen) return null;
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [previousUsers, setPreviousUsers] = useState<any[]>([]);
+const UserPopUp: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await fetch("/api/users/current");
-        const data = await response.json();
-        setCurrentUser(data);
-      } catch (error) {
-        console.error("Failed to fetch current user:", error);
+        const response = await fetch("/api/auth/user");
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+          const data = await response.json();
+          setUsers(data);
+        } else {
+          setError("Unexpected response format");
+          console.error("Received non-JSON response:", await response.text());
+        }
+      } catch (err) {
+        setError("Failed to fetch user data");
+        console.error("Fetch error:", err);
       }
     };
 
-    const fetchPreviousUsers = async () => {
-      try {
-        const response = await fetch("/api/users");
-        const data = await response.json();
-        setPreviousUsers(data);
-      } catch (error) {
-        console.error("Failed to fetch previous users:", error);
-      }
-    };
-
-    fetchCurrentUser();
-    fetchPreviousUsers();
+    fetchUsers();
   }, []);
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-          onClick={onClose}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <h2 className="text-xl font-bold mb-4 text-center no-underline hover:underline text-rose-600">
-          User History
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-8 rounded-md w-full max-w-lg">
+        <h2 className="text-xl font-semibold mb-4 text-rose-600">
+          User Logins
         </h2>
-        <div>
-          <h3 className="text-rose-600 font-semibold">Current Users</h3>
-          <ul>
-            {users.current.map((user) => (
-              <li key={user.id} className="py-2">
-                {user.name}
-              </li>
-            ))}
+        {error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <ul className="max-h-64 overflow-y-auto">
+            {users.length > 0 ? (
+              users.map((user) => (
+                <li key={user._id} className="mb-2">
+                  <p className="text-rose-600">
+                    <strong className="font-bold text-black">Name:</strong>{" "}
+                    {user.name}
+                  </p>
+                  <p className="text-rose-600">
+                    <strong className="font-bold text-black">Role:</strong>{" "}
+                    {user.role}
+                  </p>
+                  <p className="text-rose-600">
+                    <strong className="font-bold text-black">
+                      Login Time:
+                    </strong>{" "}
+                    {new Date(user.loginTime).toLocaleString()}
+                  </p>
+                </li>
+              ))
+            ) : (
+              <p className="text-rose-600 font-bold">No login records found.</p>
+            )}
           </ul>
-          <h3 className=" text-rose-600 font-semibold mt-4">Previous Users</h3>
-          <ul>
-            {users.previous.map((user) => (
-              <li key={user.id} className="py-2">
-                {user.name}
-              </li>
-            ))}
-          </ul>
-        </div>
+        )}
+        <button
+          onClick={onClose}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
 };
 
-export default UserPOP;
+export default UserPopUp;
