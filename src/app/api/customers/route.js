@@ -26,3 +26,14 @@ export async function POST(request) {
     );
   }
 }
+
+export async function GET() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("pos");
+    const customers = await db.collection("customers").find().toArray();
+    return NextResponse.json(customers);
+  } catch (error) {
+    return NextResponse.error();
+  }
+}
