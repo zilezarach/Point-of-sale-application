@@ -104,7 +104,7 @@ export default function Page() {
       <h1 className="mb-4 font-bold text-2xl text-rose-600 no-underline hover:underline">
         Recent Transactions
       </h1>
-      <table className="min-w-full border border-gray-500">
+      <table className="min-w-full border border-gray-500 bg-white">
         <thead>
           <tr>
             <th className="py-2 px-4 border-b text-rose-600">Date</th>
