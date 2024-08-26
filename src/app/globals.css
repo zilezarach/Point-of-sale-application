@@ -31,3 +31,22 @@ body {
     text-wrap: balance;
   }
 }
+
+@media print {
+  /* Hide everything except the receipt */
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-section,
+  .receipt-section * {
+    visibility: visible;
+  }
+
+  .receipt-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

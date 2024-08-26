@@ -30,6 +30,7 @@ export default function Page() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState("");
+  const [showReciept, setShowReciept] = useState(false);
 
   const fetchProduct = async (id: string) => {
     try {
@@ -45,6 +46,16 @@ export default function Page() {
 
   const handleAddProduct = () => {
     if (productId) fetchProduct(productId);
+  };
+
+  const handlePrint = () => {
+    setShowReciept(true);
+
+    // Wait for the receipt to render and then print
+    setTimeout(() => {
+      window.print();
+      setShowReciept(false);
+    }, 500);
   };
 
   const handleScan = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +83,7 @@ export default function Page() {
     }
   };
 
-  const TAX_RATE = 0.07;
+  const TAX_RATE = 0.17;
 
   const totalItems = products.length;
   const totalPrice = products.reduce((acc, product) => acc + product.price, 0);
@@ -101,6 +112,7 @@ export default function Page() {
         alert("Payment failed. Please try again");
       }
     });
+    handlePrint();
   };
 
   const handleCancel = () => {
@@ -191,11 +203,41 @@ export default function Page() {
             <FcCancel />
             Cancel
           </button>
-          <button className="rounded-full bg-yellow-500 hover:bg-teal-900 ml-5 mb-3 p-2">
-            <IoPrintSharp />
-            Print Reciept
-          </button>
+          {products.length > 0 && (
+            <button
+              onClick={handlePrint}
+              className="rounded-full bg-yellow-500 hover:bg-teal-900 ml-5 mb-3 p-2"
+            >
+              <IoPrintSharp />
+              Print Reciept
+            </button>
+          )}
         </div>
+
+        {showReciept && (
+          <div className="receipt-section">
+            <h2 className="text-2xl font-bold mb-4">Receipt</h2>
+            <table className="min-w-full bg-white border">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2">Item</th>
+                  <th className="border px-4 py-2">Qty</th>
+                  <th className="border px-4 py-2">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((item, index) => (
+                  <tr key={index}>
+                    <td className="border px-4 py-2">{item.name}</td>
+                    <td className="border px-4 py-2">{item.stock}</td>
+                    <td className="border px-4 py-2">${item.price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-4 font-bold">Thank you for your purchase!</p>
+          </div>
+        )}
         <div className=" rounded w-2/3 bg-white shadow-md mt-5 ml-5 mr-4 mb-5">
           <div className="mt-4 mb-4 ml-4 mr-4">
             <input
