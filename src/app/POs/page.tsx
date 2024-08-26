@@ -20,6 +20,7 @@ interface Product {
   price: number;
   image: string;
   stock: string;
+  qty: number;
 }
 
 export default function Page() {
@@ -30,7 +31,7 @@ export default function Page() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState("");
-  const [showReciept, setShowReciept] = useState(false);
+  const [showReciept, setShowReciept] = useState<string>("");
 
   const fetchProduct = async (id: string) => {
     try {
@@ -49,13 +50,20 @@ export default function Page() {
   };
 
   const handlePrint = () => {
-    setShowReciept(true);
+    if (products.length === 0) return;
+    // Generate receipt
+    let receiptContent = "Receipt:\n\n";
+    products.forEach((item) => {
+      receiptContent += `Item: ${item.name}, Qty: ${item.qty}, Price: ${item.price}\n`;
+    });
+    receiptContent += `\nTotal Price: ${totalPrice}\n`;
+    receiptContent += `Gross Price (after tax): ${totalPrice * 1.7}`; // Assuming 10% tax
 
-    // Wait for the receipt to render and then print
-    setTimeout(() => {
-      window.print();
-      setShowReciept(false);
-    }, 500);
+    // For demonstration, we log the receipt content to the console
+    console.log(receiptContent);
+
+    // Optionally, you can use a library to print the receipt or show it in a modal
+    setShowReciept(receiptContent);
   };
 
   const handleScan = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,23 +98,40 @@ export default function Page() {
   const taxAmount = totalPrice * TAX_RATE;
   const grossPrice = totalPrice + taxAmount;
 
-  const handlePayment = (method: string) => {
-    const transactionData = {
+  const [cashGiven, setCashGiven] = useState<number | null>(null);
+  const [change, setChange] = useState<number | null>(null);
+  const [paymentType, setPaymentType] = useState<string>("");
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCashGiven(parseFloat(e.target.value));
+  };
+
+  const calculateChange = () => {
+    if (change == null || grossPrice == null) return 0;
+    return change - grossPrice;
+  };
+  const handlePayment = async () => {
+    // Calculate change
+    const change = calculateChange();
+
+    // Prepare transaction data
+    const transaction = {
       items: products,
       totalPrice,
       grossPrice,
-      paymentMethod: method,
-      status: "Completed",
+      paymentMethod: paymentType,
+      change: paymentType === "cash" ? change : undefined,
+      timestamp: new Date().toISOString(),
     };
     fetch("api/transactions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(transactionData),
+      body: JSON.stringify(transaction),
     }).then((response) => {
       if (response.ok) {
-        alert("Payment Successful with ${method}");
+        alert("Payment Successful with Cash");
         handleCancel();
       } else {
         alert("Payment failed. Please try again");
@@ -183,19 +208,30 @@ export default function Page() {
             </div>
           </div>
           <button
-            onClick={() => handlePayment("Mobile Money")}
+            onClick={() => handlePayment}
             className="rounded-full bg-green-500 hover:bg-rose-600  ml-3 mb-3 p-2"
           >
             <MdSendToMobile />
             Mobile
           </button>
+
           <button
-            onClick={() => handlePayment("Cash")}
-            className="rounded-full bg-blue-600 hover:bg-green-600 ml-8 mb-3 p-2"
+            onClick={handlePayment}
+            className="rounded-full bg-blue-600 hover:bg-green-600 ml-8 mb-3 p-2 mr-3"
           >
             <HiOutlineCash />
             Cash
           </button>
+          <input
+            type="number"
+            placeholder="Enter cash given"
+            value={cashGiven ?? ""}
+            onChange={handleAmountChange}
+            className="border px-3 py-2 rounded-md shadow-md text-black font-bold"
+          />
+          <h3 className="text-rose-600 font-bold text-center">
+            Change Due: ${calculateChange().toFixed(2)}
+          </h3>
           <button
             onClick={handleCancel}
             className="rounded-full bg-black hover:bg-cyan-800 ml-10 mb-3 p-2"
@@ -203,41 +239,14 @@ export default function Page() {
             <FcCancel />
             Cancel
           </button>
-          {products.length > 0 && (
-            <button
-              onClick={handlePrint}
-              className="rounded-full bg-yellow-500 hover:bg-teal-900 ml-5 mb-3 p-2"
-            >
-              <IoPrintSharp />
-              Print Reciept
-            </button>
-          )}
+          <button
+            onClick={handlePrint}
+            className="rounded-full bg-yellow-500 hover:bg-teal-900 ml-5 mb-3 p-2"
+          >
+            <IoPrintSharp />
+            Print Reciept
+          </button>
         </div>
-
-        {showReciept && (
-          <div className="receipt-section">
-            <h2 className="text-2xl font-bold mb-4">Receipt</h2>
-            <table className="min-w-full bg-white border">
-              <thead>
-                <tr>
-                  <th className="border px-4 py-2">Item</th>
-                  <th className="border px-4 py-2">Qty</th>
-                  <th className="border px-4 py-2">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((item, index) => (
-                  <tr key={index}>
-                    <td className="border px-4 py-2">{item.name}</td>
-                    <td className="border px-4 py-2">{item.stock}</td>
-                    <td className="border px-4 py-2">${item.price}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="mt-4 font-bold">Thank you for your purchase!</p>
-          </div>
-        )}
         <div className=" rounded w-2/3 bg-white shadow-md mt-5 ml-5 mr-4 mb-5">
           <div className="mt-4 mb-4 ml-4 mr-4">
             <input
