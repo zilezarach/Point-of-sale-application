@@ -11,6 +11,7 @@ interface Product {
   description: string;
   price: string;
   stock: number;
+  image: string;
 }
 
 export default function Page() {
@@ -55,6 +56,13 @@ export default function Page() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product: Product) => (
           <div key={product._id} className="border p-4 rounded shadow-md ">
+            <Image
+              src={product.image}
+              alt={product.name}
+              className="w-full object-cover"
+              width={40}
+              height={40}
+            />
             <h2 className="text-lg font-bold text-rose-600">{product.name}</h2>
             <p className="text-sm font-bold text-black">
               {product.description}
@@ -70,6 +78,12 @@ export default function Page() {
           </div>
         ))}
       </div>
+      <button
+        onClick={handleCheckout}
+        className="bg-rose-600  text-white px-2 py-1 rounded shadow-md mt-3 hover:bg-blue-600 transition"
+      >
+        Proceed to Checkout
+      </button>
     </div>
   );
 }

@@ -12,6 +12,7 @@ interface Product {
   description: string;
   price: number;
   stock: number;
+  image: string;
 }
 
 type ProductListProps = {
@@ -56,6 +57,7 @@ const ProductList: React.FC<ProductListProps> = ({ productsUpdated }) => {
             <th className="font-bold text-rose-600">Stock</th>
             <th className="font-bold text-rose-600">Price</th>
             <th className="font-bold text-rose-600">Description</th>
+            <th className="font-bold text-rose-600">Image</th>
           </tr>
         </thead>
         <tbody>
@@ -70,6 +72,9 @@ const ProductList: React.FC<ProductListProps> = ({ productsUpdated }) => {
               </td>
               <td className="border font-bold text-rose-600">
                 {product.description}
+              </td>
+              <td className="border font-bold text-rose-600">
+                {product.image}
               </td>
               <td>
                 <button

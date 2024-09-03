@@ -1,6 +1,7 @@
 "use client";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface Product {
   _id: string;
@@ -8,6 +9,7 @@ interface Product {
   description: string;
   price: number;
   stock: number;
+  image: File | null;
 }
 
 type ProductProps = {
@@ -19,6 +21,8 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,6 +34,7 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
         description: description,
         price: parseFloat(price),
         stock: parseInt(stock, 10),
+        image: imageUrl,
       });
       if (response.status === 200) {
         setSuccess("Product added/updated successfully");
@@ -37,6 +42,8 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
         setPrice("");
         setDescription("");
         setStock("");
+        setImage(null);
+        setImageUrl("");
       } else {
         setError("Failed to add/update product");
         setSuccess("");
@@ -44,6 +51,33 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
     } catch (error) {
       setError("unable to add/update product");
       setSuccess("");
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null; // Check if files is not null
+    if (!file) {
+      console.error("No file selected");
+      return; // Exit if no file is selected
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await fetch("/api/uploads", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await res.json(); // Parse the response as JSON
+      setImageUrl(data.imageUrl); // Use the URL from the response
+    } catch (error) {
+      console.error("Error uploading image:", error);
     }
   };
 
@@ -91,6 +125,19 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
           onChange={(e) => setDescription(e.target.value)}
           className="w-full text-black p-2 border border-rose-500 rounded"
         />
+      </div>
+      <div className="mb-3">
+        <label className="block text-rose-500 font-bold mb-3">
+          Product Image
+        </label>
+        <input name="image" type="file" onChange={handleImageUpload} required />
+        {imageUrl && (
+          <Image
+            src={imageUrl}
+            alt="Product Preview"
+            className="mt-2 w-32 h-32 object-cover"
+          />
+        )}
       </div>
       <button
         type="submit"

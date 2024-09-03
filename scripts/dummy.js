@@ -48,6 +48,7 @@ const createDummyData = async () => {
         "8 cores, 16 threads, 3.8 GHz base clock, 4.7 GHz boost clock",
       price: 399.99,
       stock: 50,
+      image: "/public/uploads/image1.png",
     },
     {
       id: "2",
@@ -56,6 +57,7 @@ const createDummyData = async () => {
       description: "10 GB GDDR6X, 8704 CUDA cores, 1.71 GHz boost clock",
       price: 699.99,
       stock: 20,
+      image: "/public/uploads/image2.png",
     },
     {
       id: "3",
@@ -65,6 +67,7 @@ const createDummyData = async () => {
         "NVMe M.2, up to 3500 MB/s read speed, 3300 MB/s write speed",
       price: 149.99,
       stock: 100,
+      image: "/public/uploads/image3.png",
     },
     {
       id: "4",
@@ -73,6 +76,7 @@ const createDummyData = async () => {
       description: "DDR4 3200 MHz, C16, XMP 2.0 support",
       price: 89.99,
       stock: 75,
+      image: "/public/uploads/image4.png",
     },
     {
       id: "5",
@@ -81,6 +85,7 @@ const createDummyData = async () => {
       description: "AMD AM4, ATX, PCIe 4.0, Dual M.2 slots",
       price: 189.99,
       stock: 40,
+      image: "/public/uploads/image5.png",
     },
   ];
 
