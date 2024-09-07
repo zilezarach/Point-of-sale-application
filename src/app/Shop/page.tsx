@@ -9,9 +9,9 @@ interface Product {
   _id: string;
   name: string;
   description: string;
-  price: string;
+  price: number;
   stock: number;
-  image: string;
+  imageUrl?: string;
 }
 
 export default function Page() {
@@ -56,8 +56,8 @@ export default function Page() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product: Product) => (
           <div key={product._id} className="border p-4 rounded shadow-md ">
-            <Image
-              src={product.image}
+            <img
+              src={`data:image/png;base64,${product.image}`}
               alt={product.name}
               className="w-full object-cover"
               width={40}

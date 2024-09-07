@@ -1,7 +1,8 @@
 "use client";
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import Image from "next/image";
+import { imageOptimizer } from "next/dist/server/image-optimizer";
 
 interface Product {
   _id: string;
@@ -9,7 +10,7 @@ interface Product {
   description: string;
   price: number;
   stock: number;
-  image: File | null;
+  image?: string;
 }
 
 type ProductProps = {
@@ -26,59 +27,51 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
-  const handlesubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
     try {
-      const response = await axios.post("/api/products", {
-        name: name,
-        description: description,
-        price: parseFloat(price),
-        stock: parseInt(stock, 10),
-        image: imageUrl,
-      });
-      if (response.status === 200) {
-        setSuccess("Product added/updated successfully");
-        setName("");
-        setPrice("");
-        setDescription("");
-        setStock("");
-        setImage(null);
-        setImageUrl("");
-      } else {
-        setError("Failed to add/update product");
-        setSuccess("");
-      }
+      const response = await axios.get<Product[]>("/api/products");
+      setProducts(response.data);
     } catch (error) {
-      setError("unable to add/update product");
-      setSuccess("");
+      console.error("Error fetching Products:", error);
     }
   };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files ? e.target.files[0] : null; // Check if files is not null
-    if (!file) {
-      console.error("No file selected");
-      return; // Exit if no file is selected
-    }
-
+  const handlesubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("name", name);
+    formData.append("image", image!);
+    formData.append("stock", stock.toString());
+    formData.append("price", price);
+    formData.append("description", description);
 
     try {
-      const res = await fetch("/api/uploads", {
+      const response = await fetch("/api/products", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to upload image");
+      if (response.ok) {
+        alert("Product added successfully!");
+      } else {
+        alert("Failed to add product.");
       }
-
-      const data = await res.json(); // Parse the response as JSON
-      setImageUrl(data.imageUrl); // Use the URL from the response
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error("Error adding product:", error);
     }
+  };
+
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+      console.error("No file detected");
+      return;
+    }
+    // Save the uploaded image URL
   };
 
   return (
@@ -117,23 +110,31 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
         />
       </div>
       <div className="mb-3">
-        <label className="block text-rose-500 font-bold">
+        <label htmlFor="description" className="block text-rose-500 font-bold">
           Product description
         </label>
         <textarea
+          id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full text-black p-2 border border-rose-500 rounded"
+          required
         />
       </div>
       <div className="mb-3">
         <label className="block text-rose-500 font-bold mb-3">
           Product Image
         </label>
-        <input name="image" type="file" onChange={handleImageUpload} required />
-        {imageUrl && (
+        <input
+          name="image"
+          accept="image/*"
+          type="file"
+          onChange={handleImageUpload}
+          required
+        />
+        {products.image && (
           <Image
-            src={imageUrl}
+            src={products.image}
             alt="Product Preview"
             className="mt-2 w-32 h-32 object-cover"
           />

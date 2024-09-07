@@ -1,37 +1,30 @@
-import formidable from "formidable";
-import fs from "fs";
+import { NextResponse } from "next/server";
+import multer from "multer";
 import path from "path";
+import fs from "fs";
 
-// Disable the default body parser
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: "./public/uploads",
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    },
+  }),
+});
 
-// Named export for handling POST requests
-export default async function handler(req, res) {
-  if (req.method === "POST") {
-    const form = new formidable.IncomingForm();
-    form.uploadDir = path.join(process.cwd(), "public/uploads");
-    form.keepExtensions = true;
+export async function POST(request) {
+  return new Promise((resolve, reject) => {
+    const form = new FormData();
+    form.append("image", request.body);
 
-    form.parse(req, (err, fields, files) => {
+    upload.single("image")(request, {}, (err) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        return reject(
+          NextResponse.json({ error: "Upload failed" }, { status: 400 }),
+        );
       }
-
-      if (!files.image) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-
-      const file = files.image[0];
-      const filePath = `/uploads/${path.basename(file.filepath)}`;
-
-      res.status(200).json({ imageUrl: filePath });
+      const imageUrl = `/uploads/${request.file.filename}`;
+      resolve(NextResponse.json({ imageUrl }));
     });
-  } else {
-    res.setHeader("Allow", ["POST"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
+  });
 }

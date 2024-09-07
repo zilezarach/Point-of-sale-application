@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { RecursiveKeyValuePair } from "tailwindcss/types/config";
 import { MdDeleteForever } from "react-icons/md";
+import Image from "next/image";
 
 interface Product {
   _id: string;
@@ -63,18 +64,24 @@ const ProductList: React.FC<ProductListProps> = ({ productsUpdated }) => {
         <tbody>
           {products.map((product) => (
             <tr key={product._id}>
-              <td className="border font-bold text-rose-600">{product.name}</td>
-              <td className="border font-bold text-rose-600">
+              <td className="border font-bold text-rose-600 text-center">
+                {product.name}
+              </td>
+              <td className="border font-bold text-rose-600 text-center">
                 {product.stock}
               </td>
-              <td className="border text-rose-600 font-bold">
+              <td className="border text-black font-bold text-center">
                 {product.price}
               </td>
-              <td className="border font-bold text-rose-600">
+              <td className="border font-bold text-rose-600 text-center">
                 {product.description}
               </td>
               <td className="border font-bold text-rose-600">
-                {product.image}
+                <img
+                  src={`data:image/png;base64,${product.image}`}
+                  alt={product.name}
+                  className="w-27 h-16 object-cover"
+                />
               </td>
               <td>
                 <button

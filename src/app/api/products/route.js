@@ -14,18 +14,44 @@ export async function GET() {
 }
 export async function POST(req) {
   try {
+    const formData = await req.formData();
+    const name = formData.get("name");
+    const image = formData.get("image"); // This is a File object
+    const stock = Number(formData.get("stock"));
+    const price = formData.get("price");
+    const description = formData.get("description");
+    // Validate the data (e.g., ensure all fields are filled)
+    if (!name || !image || !stock || !price || !description) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+
+    // Save the image as a base64 string (or you could save it to cloud storage and store the URL)
+    const imageBuffer = await image.arrayBuffer();
+    const imageBase64 = Buffer.from(imageBuffer).toString("base64");
+
+    // Insert the product into the database
     const client = await clientPromise;
-    const db = client.db("pos");
-    const { name, price, stock, description } = await req.json();
-    const product = { name, price, stock, description };
-    await db.collection("products").insertOne(product);
-    return new Response(JSON.stringify({ success: true }), { status: 201 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: "Failed to add product" }), {
-      status: 500,
+    const db = client.db("pos"); // Replace with your DB name
+    const collection = db.collection("products");
+
+    await collection.insertOne({
+      name,
+      image: imageBase64, // Store the base64 image string or image URL if uploaded elsewhere
+      stock,
+      price,
+      description,
     });
+
+    return NextResponse.json({ message: "Product added successfully" });
+  } catch (error) {
+    console.error("Error adding product:", error);
+    return NextResponse.json(
+      { error: "Failed to add product" },
+      { status: 500 },
+    );
   }
 }
+
 export async function PUT(req) {
   try {
     const client = await clientPromise;
