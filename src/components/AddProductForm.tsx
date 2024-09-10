@@ -132,13 +132,6 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
           onChange={handleImageUpload}
           required
         />
-        {products.image && (
-          <Image
-            src={products.image}
-            alt="Product Preview"
-            className="mt-2 w-32 h-32 object-cover"
-          />
-        )}
       </div>
       <button
         type="submit"

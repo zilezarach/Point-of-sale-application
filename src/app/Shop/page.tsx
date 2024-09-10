@@ -11,34 +11,36 @@ interface Product {
   description: string;
   price: number;
   stock: number;
-  imageUrl?: string;
+  image: string;
 }
 
 export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<Product[]>([]);
+
   const router = useRouter();
 
   useEffect(() => {
-    axios
-      .get("/api/products")
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching products: ", error);
-      });
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products");
+        const data: Product[] = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const addToCart = (product: Product) => {
-    setCart([...cart, product]);
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    cart.push(product);
+    localStorage.setItem("cart", JSON.stringify(cart));
   };
 
-  const handleCheckout = () => {
-    router.push({
-      pathname: "/cart",
-      query: { cart: JSON.stringify(cart) },
-    } as any);
+  const handleCheckout = async () => {
+    router.push("/cart");
   };
 
   return (
@@ -68,7 +70,9 @@ export default function Page() {
               {product.description}
             </p>
             <p className="font-bold text-rose-600">Stock:{product.stock}</p>
-            <p className="text-lg font-bold text-black">{product.price}</p>
+            <p className="text-lg font-bold text-black">
+              ${Number(product.price).toFixed(2)}
+            </p>
             <button
               onClick={() => addToCart(product)}
               className="bg-rose-600 text-white px-4 py-2 rounded hover:bg-blue-600 transition"

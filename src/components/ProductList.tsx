@@ -71,7 +71,7 @@ const ProductList: React.FC<ProductListProps> = ({ productsUpdated }) => {
                 {product.stock}
               </td>
               <td className="border text-black font-bold text-center">
-                {product.price}
+                ${Number(product.price).toFixed(2)}
               </td>
               <td className="border font-bold text-rose-600 text-center">
                 {product.description}
