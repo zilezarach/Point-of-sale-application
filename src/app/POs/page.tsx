@@ -11,6 +11,7 @@ import { FcCancel } from "react-icons/fc";
 import { IoPrintSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { fetchExternalImage } from "next/dist/server/image-optimizer";
+import { parse } from "postcss";
 
 interface Product {
   id: string;
@@ -49,22 +50,7 @@ export default function Page() {
     if (productId) fetchProduct(productId);
   };
 
-  const handlePrint = () => {
-    if (products.length === 0) return;
-    // Generate receipt
-    let receiptContent = "Receipt:\n\n";
-    products.forEach((item) => {
-      receiptContent += `Item: ${item.name}, Qty: ${item.qty}, Price: ${item.price}\n`;
-    });
-    receiptContent += `\nTotal Price: ${totalPrice}\n`;
-    receiptContent += `Gross Price (after tax): ${totalPrice * 1.7}`; // Assuming 10% tax
-
-    // For demonstration, we log the receipt content to the console
-    console.log(receiptContent);
-
-    // Optionally, you can use a library to print the receipt or show it in a modal
-    setShowReciept(receiptContent);
-  };
+  const handlePrint = () => {};
 
   const handleScan = (event: React.ChangeEvent<HTMLInputElement>) => {
     const id = event.target.value;
@@ -91,57 +77,53 @@ export default function Page() {
     }
   };
 
-  const TAX_RATE = 0.17;
+  const TAX_RATE = 0.16;
+  const calculateGrossPrice = (items: Product[]): number => {
+    return items.reduce((total, item) => {
+      const price = Number(item.price) || 0;
+      const quantity = Number(item.qty) || 1;
 
+      return total + price * quantity;
+    }, 0);
+  };
   const totalItems = products.length;
-  const totalPrice = products.reduce((acc, product) => acc + product.price, 0);
-  const taxAmount = totalPrice * TAX_RATE;
-  const grossPrice = totalPrice + taxAmount;
-
-  const [cashGiven, setCashGiven] = useState<number | null>(null);
-  const [change, setChange] = useState<number | null>(null);
+  const totalAmount = calculateGrossPrice(products);
+  const taxAmount = totalAmount * TAX_RATE;
+  const grossPrice = totalAmount + taxAmount;
+  const [change, setChange] = useState(null);
   const [paymentType, setPaymentType] = useState<string>("");
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCashGiven(parseFloat(e.target.value));
-  };
-
-  const calculateChange = () => {
-    if (change == null || grossPrice == null) return 0;
-    return change - grossPrice;
-  };
   const handlePayment = async () => {
-    // Calculate change
-    const change = calculateChange();
-
-    // Prepare transaction data
-    const transaction = {
-      items: products,
-      totalPrice,
-      grossPrice,
-      paymentMethod: paymentType,
-      change: paymentType === "cash" ? change : undefined,
-      timestamp: new Date().toISOString(),
-    };
-    fetch("api/transactions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(transaction),
-    }).then((response) => {
-      if (response.ok) {
-        alert("Payment Successful with Cash");
-        handleCancel();
-      } else {
-        alert("Payment failed. Please try again");
-      }
-    });
     handlePrint();
   };
 
   const handleCancel = () => {
     setProducts([]);
+  };
+  const handleCashPayment = () => {
+    const cashGiven = prompt("Enter the cash amount paid:");
+
+    // Handle the case where the prompt returns null (user clicks cancel)
+    if (cashGiven === null) {
+      alert("Payment canceled.");
+      return;
+    }
+
+    const cashPaid = parseFloat(cashGiven);
+
+    // Check if cashPaid is a valid number
+    if (isNaN(cashPaid)) {
+      alert("Invalid input. Please enter a valid number.");
+      return;
+    }
+
+    if (cashPaid >= grossPrice) {
+      const change = cashPaid - grossPrice;
+      alert(`Payment successful. Change: ${change.toFixed(2)}`);
+      // Proceed with receipt printing
+    } else {
+      alert(`Insufficient cash. Please pay at least ${grossPrice.toFixed(2)}.`);
+    }
   };
 
   return (
@@ -192,7 +174,7 @@ export default function Page() {
                 Total Items:{totalItems}
               </div>
               <div className="text-black font-bold mb-3">
-                Price:{totalPrice.toFixed(2)}
+                Price: ${totalAmount.toFixed(2)}
               </div>
               <div className="text-black font-bold mt-4 ml-3">
                 Discount:
@@ -203,7 +185,7 @@ export default function Page() {
                 />
               </div>
               <div className="text-black font-bold mt-4 mb-3">
-                Gross Price(Inc Tax):{grossPrice.toFixed(2)}
+                Gross Price(Inc Tax):${grossPrice.toFixed(2)}
               </div>
             </div>
           </div>
@@ -216,22 +198,12 @@ export default function Page() {
           </button>
 
           <button
-            onClick={handlePayment}
+            onClick={handleCashPayment}
             className="rounded-full bg-blue-600 hover:bg-green-600 ml-8 mb-3 p-2 mr-3"
           >
             <HiOutlineCash />
             Cash
           </button>
-          <input
-            type="number"
-            placeholder="Enter cash given"
-            value={cashGiven ?? ""}
-            onChange={handleAmountChange}
-            className="border px-3 py-2 rounded-md shadow-md text-black font-bold"
-          />
-          <h3 className="text-rose-600 font-bold text-center">
-            Change Due: ${calculateChange().toFixed(2)}
-          </h3>
           <button
             onClick={handleCancel}
             className="rounded-full bg-black hover:bg-cyan-800 ml-10 mb-3 p-2"

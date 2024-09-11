@@ -8,27 +8,27 @@ import { FcManager } from "react-icons/fc";
 import { TbShoppingCartDollar } from "react-icons/tb";
 import { FcHome } from "react-icons/fc";
 import Spinner from "./Spinner";
+import dynamic from "next/dynamic";
 
 const Sidebar = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
   const handleproduct = async () => {
     setLoading(true);
     router.push("/admin/productMan");
-    setLoading(false);
   };
   const handleEmployee = async () => {
     setLoading(true);
     router.push("/admin/employeeMan");
-    setLoading(false);
   };
   const handleHome = async () => {
     setLoading(true);
     router.push("/admin");
-    setLoading(false);
   };
   return (
     <div className="h-full bg-gray-300 text-white p-4 rounded shadow-sm">
+      {loading && <Spinner />}
       <h2 className=" text-2xl font-bold text-rose-500 mb-6 no-underline hover:underline">
         Zacc Management.
         <Image
@@ -45,15 +45,7 @@ const Sidebar = () => {
           disabled={loading}
           className="rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
         >
-          {loading ? (
-            <div className="flex justify-center items-center ">
-              <Spinner />
-            </div>
-          ) : (
-            <div className="flex justify-center items-center">
-              <FcHome />
-            </div>
-          )}
+          <FcHome />
           Home
         </button>
       </div>
@@ -63,7 +55,7 @@ const Sidebar = () => {
           className=" rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
           disabled={loading}
         >
-          {loading ? <Spinner /> : <TbShoppingCartDollar />}
+          <TbShoppingCartDollar />
           Product Management
         </button>
       </div>
@@ -73,7 +65,7 @@ const Sidebar = () => {
           className="rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
           disabled={loading}
         >
-          {loading ? <Spinner /> : <FcManager />}
+          <FcManager />
           Employee Management.
         </button>
       </div>
