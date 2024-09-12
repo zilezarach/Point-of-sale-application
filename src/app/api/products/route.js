@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/db";
 import { ObjectId } from "mongodb";
+import { URLSearchParams } from "next/dist/compiled/@edge-runtime/primitives/url";
 
 export async function GET() {
   try {
@@ -52,37 +53,52 @@ export async function POST(req) {
   }
 }
 
-export async function PUT(req) {
-  try {
-    const client = await clientPromise;
-    const db = client.db("pos");
-    const { productId, quantitySold } = await req.json();
+export default async function handler(req, res) {
+  const { method } = req;
 
-    const product = await db
-      .collection("products")
-      .findOne({ _id: new ObjectId(productId) });
+  if (method === "PATCH") {
+    const { productId } = req.query;
+    const { qty } = req.body;
 
-    if (!product) {
-      return new Response(JSON.stringify({ error: "Product not found" }), {
-        status: 404,
+    try {
+      const client = await clientPromise;
+      const db = client.db("pos");
+      const productsCollection = db.collection("products");
+
+      // Find the product by ID
+      const product = await productsCollection.findOne({
+        _id: new ObjectId(productId),
       });
-    }
 
-    const updatedStock = product.stock - parseInt(quantitySold);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
 
-    await db
-      .collection("products")
-      .updateOne(
+      console.log(`Current stock: ${product.stock}`);
+
+      // Calculate new stock value
+      const newStock = product.stock - qty;
+
+      // Ensure stock doesn't go negative
+      if (newStock < 0) {
+        return res.status(400).json({ message: "Insufficient stock" });
+      }
+
+      // Update the stock in the database
+      await productsCollection.updateOne(
         { _id: new ObjectId(productId) },
-        { $set: { stock: updatedStock } },
+        { $set: { stock: newStock } },
       );
 
-    return new Response(JSON.stringify({ success: true, updatedStock }), {
-      status: 200,
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: "Failed to update stock" }), {
-      status: 500,
-    });
+      // Log the new stock value
+      console.log(`Updated stock: ${newStock}`);
+
+      res.status(200).json({ message: "Stock updated", newStock });
+    } catch (error) {
+      res.status(500).json({ message: "Error updating stock", error });
+    }
+  } else {
+    res.setHeader("Allow", ["PATCH"]);
+    res.status(405).end(`Method ${method} Not Allowed`);
   }
 }

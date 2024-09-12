@@ -102,6 +102,33 @@ export default function Page() {
     setError(null);
   };
   const handleCashPayment = async () => {
+    const updatedStock = async (
+      productId: string,
+      qty: number,
+    ): Promise<void> => {
+      try {
+        const response = await fetch(`/api/products/${productId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ qty }), // Pass the quantity sold
+        });
+
+        const updatedProduct = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            updatedProduct.error || "Failed to update product stock",
+          );
+        }
+
+        console.log("Product stock updated:", updatedStock);
+      } catch (error) {
+        console.error("Error updating product stock:", error);
+      }
+    };
+
     const transaction = {
       date: new Date().toISOString(),
       amount: totalAmount,
