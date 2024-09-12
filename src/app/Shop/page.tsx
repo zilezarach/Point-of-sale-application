@@ -55,6 +55,12 @@ export default function Page() {
 
   return (
     <div className=" bg-gray-300 container-none mx-auto min-h-screen p-4">
+      <button
+        onClick={handleCheckout}
+        className="bg-rose-600  text-white px-2 py-1 rounded shadow-md mt-3   hover:bg-blue-600 transition"
+      >
+        Proceed to Checkout
+      </button>
       {showToast && <div className="toast">Product added to Cart!!</div>}
       <h1 className="text-center text-rose-600 font-bold no-underline hover:underline text-lg">
         Shop Our Products
@@ -68,7 +74,10 @@ export default function Page() {
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product: Product) => (
-          <div key={product._id} className="border p-4 rounded shadow-md border-black ">
+          <div
+            key={product._id}
+            className="border p-4 rounded shadow-md border-black "
+          >
             <img
               src={`data:image/png;base64,${product.image}`}
               alt={product.name}
@@ -93,13 +102,6 @@ export default function Page() {
           </div>
         ))}
       </div>
-
-      <button
-        onClick={handleCheckout}
-        className="bg-rose-600  text-white px-2 py-1 rounded shadow-md mt-3 hover:bg-blue-600 transition"
-      >
-        Proceed to Checkout
-      </button>
     </div>
   );
 }

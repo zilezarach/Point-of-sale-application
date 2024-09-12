@@ -31,7 +31,7 @@ export default function Page() {
   const [productId, setProductId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [showReciept, setShowReciept] = useState<string>("");
 
   const fetchProduct = async (id: string) => {
@@ -99,8 +99,15 @@ export default function Page() {
 
   const handleCancel = () => {
     setProducts([]);
+    setError(null);
   };
-  const handleCashPayment = () => {
+  const handleCashPayment = async () => {
+    const transaction = {
+      date: new Date().toISOString(),
+      amount: totalAmount,
+      paymentMethod: "Cash",
+      productInfo: products.map((product) => `${product.name}`).join(","),
+    };
     const cashGiven = prompt("Enter the cash amount paid:");
 
     // Handle the case where the prompt returns null (user clicks cancel)
@@ -123,6 +130,20 @@ export default function Page() {
       // Proceed with receipt printing
     } else {
       alert(`Insufficient cash. Please pay at least ${grossPrice.toFixed(2)}.`);
+    }
+    const response = await fetch("/api/transactions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(transaction),
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      setError("Transaction added");
+    } else {
+      setError(data.error || "No Transaction added");
     }
   };
 
@@ -209,7 +230,7 @@ export default function Page() {
             className="rounded-full bg-black hover:bg-cyan-800 ml-10 mb-3 p-2"
           >
             <FcCancel />
-            Cancel
+            Clear
           </button>
           <button
             onClick={handlePrint}
@@ -218,6 +239,9 @@ export default function Page() {
             <IoPrintSharp />
             Print Reciept
           </button>
+          {error && (
+            <p className=" text-center text-rose-600 font-bold">{error}</p>
+          )}
         </div>
         <div className=" rounded w-2/3 bg-white shadow-md mt-5 ml-5 mr-4 mb-5">
           <div className="mt-4 mb-4 ml-4 mr-4">

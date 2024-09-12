@@ -24,12 +24,14 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-type Transaction = {
-  date: string;
-  productName: string;
+
+interface Transaction {
+  _id: string;
   amount: number;
-  paymentMethod: string;
-};
+  date: string;
+  productInfo: string;
+  paymentMethod: "Cash" | "MobileMoney";
+}
 
 export default function Page() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -114,16 +116,16 @@ export default function Page() {
           </tr>
         </thead>
         <tbody>
-          {transactions.slice(0, 10).map((transaction, index) => (
-            <tr key={index}>
+          {transactions.map((transaction) => (
+            <tr key={transaction._id}>
               <td className="py-2 px-4 border-b text-black">
                 {new Date(transaction.date).toLocaleDateString()}
               </td>
               <td className="py-2 px-4 border-b text-black">
-                {transaction.productName}
+                {transaction.productInfo}
               </td>
               <td className="py-2 px-4 border-b text-black font-bold">
-                ${transaction.amount.toFixed(2)}
+                ${transaction.amount ? transaction.amount.toFixed(2) : "N/A"}
               </td>
               <td className="py-2 px-4 border-b text-black font-bold">
                 {transaction.paymentMethod}
