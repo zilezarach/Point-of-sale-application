@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import axios from "axios";
 import Spinner from "./Spinner";
-
 const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

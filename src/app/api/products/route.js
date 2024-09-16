@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/db";
-import { ObjectId } from "mongodb";
-import { URLSearchParams } from "next/dist/compiled/@edge-runtime/primitives/url";
+import { ObjectId } from "mongodb"
 
 export async function GET() {
   try {
