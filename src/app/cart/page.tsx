@@ -12,13 +12,29 @@ interface Product {
   image: string;
 }
 
+
+
+
+
+
 export default function Page() {
-  const [cart, setCart] = useState<Product[]>([]);
+  const [cart, setCart] = useState<Product[]>
+
+    ([]);
+
   const router = useRouter();
+  const [deliveryOption, setDeliveryOption] = useState('standard');
+  const [deliveryFee, setDeliveryFee] = useState(100);
+
+
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
     setCart(storedCart);
   }, []);
+
+
+
+
 
   const removeFromCart = (productId: number) => {
     const updatedCart = cart.filter((product) => product._id !== productId);
@@ -27,8 +43,14 @@ export default function Page() {
   };
 
   const handlePayment = () => {
-    router.push("/Payment");
+    const total = getTotalItems();
+    router.push(`/Payment?total=${total}&deliveryFee=${deliveryFee}&deliveryOption=${deliveryOption}`);
   };
+
+  const getTotalItems = () => {
+    const totalItem = cart.reduce((total, item) => total + item.price, 0);
+    return totalItem.toLocaleString('en-KE', { style: 'currency', currency: 'KES' });
+  }
 
   return (
     <div className="bg-gray-300 min-h-screen">
@@ -52,7 +74,14 @@ export default function Page() {
                 alt={product.name}
               />
               <h2 className="text-rose-600">{product.name}</h2>
-              <p className="text-black font-bold">${product.price}</p>
+
+              <p className="font-bold text-black">Delivery Option:
+                <select value={deliveryOption} onChange={(e) => { setDeliveryOption(e.target.value); setDeliveryFee(e.target.value === 'standard' ? 50 : 100) }}><option value="standard">Standard Delivery KSh 50</option>
+                  <option value="express">Express Delivery KSh 100</option>
+                </select>
+              </p>
+              <p className=" font-bold text-rose-600">Total Price: {parseFloat(getTotalItems())}</p>
+
               <button
                 onClick={() => removeFromCart(product._id)}
                 className="px-6 py-4 bg-rose-600 rounded-full hover:bg-blue-600"
