@@ -6,8 +6,9 @@ import axios from "axios";
 import Image from "next/image";
 import { setTimeout } from "timers";
 
+
 interface Product {
-  _id: string;
+  _id: number;
   name: string;
   description: string;
   price: number;
@@ -79,12 +80,7 @@ export default function Page() {
             className="border p-4 rounded shadow-md border-black "
           >
             <img
-              src={`data:image/png;base64,${product.image}`}
-              alt={product.name}
-              className="w-full object-cover"
-              width={40}
-              height={40}
-            />
+              src={`data:image/png;base64,${product.image}`} alt="" className="object-cover w-full" width={40} height={40} />
             <h2 className="text-lg font-bold text-rose-600">{product.name}</h2>
             <p className="text-sm font-bold text-black">
               {product.description}

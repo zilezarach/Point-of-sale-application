@@ -10,6 +10,7 @@ interface Product {
   price: number;
   stock: number;
   image: string;
+  qty: number;
 }
 
 
@@ -29,7 +30,11 @@ export default function Page() {
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    setCart(storedCart);
+    const clearCart = storedCart.map((product: any) => ({
+      ...product,
+      price: parseFloat(product.price.toString().replace(/^0+/, '')),
+    }))
+    setCart(clearCart)
   }, []);
 
 
@@ -47,10 +52,11 @@ export default function Page() {
     router.push(`/Payment?total=${total}&deliveryFee=${deliveryFee}&deliveryOption=${deliveryOption}`);
   };
 
-  const getTotalItems = () => {
-    const totalItem = cart.reduce((total, item) => total + item.price, 0);
-    return totalItem.toLocaleString('en-KE', { style: 'currency', currency: 'KES' });
+  const getTotalItems = (): number => {
+    return cart.reduce((total, item) => total + item.price, 0);
   }
+
+  const formattedTotal = getTotalItems().toLocaleString('en-KE', { style: 'currency', currency: 'KES' });
 
   return (
     <div className="bg-gray-300 min-h-screen">
@@ -80,7 +86,7 @@ export default function Page() {
                   <option value="express">Express Delivery KSh 100</option>
                 </select>
               </p>
-              <p className=" font-bold text-rose-600">Total Price: {parseFloat(getTotalItems())}</p>
+              <p className=" font-bold text-rose-600">Total Price: {formattedTotal}</p>
 
               <button
                 onClick={() => removeFromCart(product._id)}
