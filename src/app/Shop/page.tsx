@@ -87,7 +87,7 @@ export default function Page() {
             </p>
             <p className="font-bold text-rose-600">Stock:{product.stock}</p>
             <p className="text-lg font-bold text-black">
-              ${Number(product.price).toFixed(2)}
+              Ksh {Number(product.price).toFixed(2)}
             </p>
             <button
               onClick={() => addToCart(product)}

@@ -101,7 +101,7 @@ export default function Page() {
       <div className="flex justify-center">
         <button
           onClick={handlePayment}
-          className="mt-2 bg-rose-600 px-3 py-4 shadow-md rounded-full"
+          className="mt-2 bg-rose-600 px-3 py-4 shadow-md rounded-full hover:bg-blue-600"
         >
           Proceed to Payment
         </button>

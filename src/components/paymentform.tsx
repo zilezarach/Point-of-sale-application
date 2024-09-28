@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { TbCashBanknoteFilled } from 'react-icons/tb';
+import axios from 'axios';
 
+import { useRouter } from 'next/navigation';
 interface PaymentFormProps {
   total: number;
 }
@@ -11,37 +12,31 @@ const paymentForm: React.FC<PaymentFormProps> = ({ total }) => {
   const searchParams = useSearchParams();
   const [paymentMethod, setPaymentMethod] = useState('mpesa')
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState("");
-  const [amount, setAmount] = useState(0);
-  const [currency, setCurrency] = useState('KES');
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [amount, setAmount] = useState('');
+  const [transactionDesc, setTransactionDesc] = useState('');
+  const [accountReference, setAccountReference] = useState('')
+  const router = useRouter();
   const totalPrice = parseFloat(searchParams.get('total') || '0');
   const deliveryFee = parseFloat(searchParams.get('deliveryFee') || '0');
   const deliveryOption = searchParams.get('deliveryOption' || 'standard');
 
   const finalAmount = totalPrice + deliveryFee
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/intasend', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: finalAmount,
-          currency,
-          phone_number: phone,
-          payment_method: paymentMethod,
-        })
-      })
+      const response = await axios.post('/api/mpesa', {
+        amount,
+        phoneNumber,
+        accountReference,
+        transactionDesc,
+      });
+      console.log(response.data);
     } catch (error) {
-      console.error('Error processing payment ', error);
-      alert('Error processing Payment');
+      console.error('Payment Error:', error);
     }
-  }
-
-
+  };
   return (
     <div className='flex flex-col h-screen md:flex-row'>
       <div className='md:w-1/2 items-center justify-center bg-gray-200'>
@@ -53,18 +48,25 @@ const paymentForm: React.FC<PaymentFormProps> = ({ total }) => {
         })}</strong></p>
         <p className='font-bold text-lime-400 text-center mt-2 mb-4'>Final Amount: <strong>{finalAmount.toLocaleString('en-KE', { style: 'currency', currency: 'KES' })}</strong></p>
         <div className='flex items-center justify-center'>
-          <form onSubmit={handleSubmit} className='  bg-white p-10 w-4/5 rounded shadow-md'>
+          <form onSubmit={handlePayment} className='  bg-white p-10 w-4/5 rounded shadow-md'>
             <h2 className='text-rose-500 font-bold text-center mb-4'>Make Payment:</h2>
             <label className='text-rose-500 font-bold ml-2'>Email:</label>
-            <input type='email' value={email} onChange={(e) => setEmail(e.target.value)} className='mb-4 border-2 p-2 rounded w-full' />
-            <label className='text-rose-500 font-bold ml-2'>Phone number (For Mpesa):</label>
-            <input type='tel' value={phone} onChange={(e) => setPhone(e.target.value)} required={paymentMethod === 'mpesa'} className='mb-4 p-2 border-2 rounded w-full' />
+            <input type='email' value={email} onChange={(e) => setEmail(e.target.value)} className='mb-4 border-2 p-2 rounded w-full text-black' />
             <label className='block mb-2'>Select Payment method: </label>
             <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className='mb-4 p-2 border w-full bg-rose-600 text-white rounded text-center hover:bg-blue-600'>
               <option value='mpesa'>M-Pesa</option>
               <option value='card'>Card</option>
             </select>
-            <button type='submit' className='bg-rose-600 p-2 text-white rounded w-full text-center hover:bg-blue-600'>Pay</button>
+            {paymentMethod === 'mpesa' && (
+              <label className='text-rose-500 font-bold ml-2'>Phone number (For Mpesa):
+
+                <input type='tel' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className='mb-4 p-2 border-2 rounded w-full text-black' placeholder='Phone Number' />
+
+                <input type='text' value={transactionDesc} placeholder='Transaction Description' onChange={(e) => setTransactionDesc(e.target.value)} required className='mb-4 p-2 border-2 rounded w-full text-black' />
+                <input type='text' placeholder='Account Reference' value={accountReference} onChange={(e) => setAccountReference(e.target.value)} required className='mb-4 p-2 border-2 rounded w-full text-black' />
+              </label>
+            )}
+            <button type='submit' className='bg-rose-600 p-2 text-white rounded w-full text-center hover:bg-blue-600'>Pay: {finalAmount}</button>
           </form>
         </div>
       </div>

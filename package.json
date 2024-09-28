@@ -10,10 +10,11 @@
     "type": "module"
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.3",
+    "dotenv": "^16.4.5",
     "flutterwave-node-v3": "^1.1.11",
     "formidable": "^3.5.1",
     "framer-motion": "^11.3.28",
