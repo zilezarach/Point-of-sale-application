@@ -25,13 +25,25 @@ const getToken = async () => {
   }
 };
 
-const STKPush = async (amount, phoneNumber, accountReference, transactionDesc) => {
+const STKPush = async (amount, phoneNumber) => {
   const Token = await getToken();
   const shortcode = process.env.MPESA_SHORTCODE;
   const passkey = process.env.MPESA_PASSKEY;
-  const timestamp = new Date().toISOString().replace(/[:.KE]/g, '').slice(0, 14);
+  const date = new Date();
+  const timestamp =
+    date.getFullYear() +
+    ("0" + (date.getMonth() + 1)).slice(-2) +
+    ("0" + date.getDate()).slice(-2) +
+    ("0" + date.getHours()).slice(-2) +
+    ("0" + date.getMinutes()).slice(-2) +
+    ("0" + date.getSeconds()).slice(-2);
 
+
+  // Generate password dynamically
   const password = new Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
+
+  // Ensure phone number is in 254 format
+  const sanitizedPhoneNumber = phoneNumber.replace(/[^0-9]/g, '').replace(/^0/, '254');
 
   const payload = {
     BusinessShortCode: shortcode,
@@ -39,25 +51,26 @@ const STKPush = async (amount, phoneNumber, accountReference, transactionDesc) =
     Timestamp: timestamp,
     TransactionType: 'CustomerPayBillOnline',
     Amount: amount,
-    PartyA: phoneNumber,
+    PartyA: phoneNumber,  // Correctly formatted phone number
     PartyB: shortcode,
-    CallBackURL: 'https://6dc6-105-163-1-227.ngrok-free.app/callback',
-
-    AccountReference: accountReference,
-    TransactionDesc: transactionDesc,
+    PhoneNumber: phoneNumber,
+    CallBackURL: "https://8656-105-163-1-227.ngrok-free.app/api/mpesa/callback",
+    AccountReference: "Test",
+    TransactionDesc: "Test",
   };
+
   try {
     const response = await axios.post(`${URL}/mpesa/stkpush/v1/processrequest`, payload, {
       headers: {
-         Authorization: `Bearer ${Token}`,
+        Authorization: `Bearer ${Token}`,
         'Content-Type': 'application/json',
       },
-    })
+    });
     return response.data;
   } catch (error) {
-    console.error('Error initiating STK PUSH:', error);
+    console.error('Error initiating STK PUSH:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
 
-export { STKPush };
+export { STKPush }

@@ -27,7 +27,7 @@ const paymentForm: React.FC<PaymentFormProps> = ({ total }) => {
     e.preventDefault();
     try {
       const response = await axios.post('/api/mpesa', {
-        amount,
+        amount: finalAmount,
         phoneNumber,
         accountReference,
         transactionDesc,
@@ -60,10 +60,9 @@ const paymentForm: React.FC<PaymentFormProps> = ({ total }) => {
             {paymentMethod === 'mpesa' && (
               <label className='text-rose-500 font-bold ml-2'>Phone number (For Mpesa):
 
-                <input type='tel' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className='mb-4 p-2 border-2 rounded w-full text-black' placeholder='Phone Number' />
+                <input type='text' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className='mb-4 p-2 border-2 rounded w-full text-black' placeholder='Phone Number' />
 
-                <input type='text' value={transactionDesc} placeholder='Transaction Description' onChange={(e) => setTransactionDesc(e.target.value)} required className='mb-4 p-2 border-2 rounded w-full text-black' />
-                <input type='text' placeholder='Account Reference' value={accountReference} onChange={(e) => setAccountReference(e.target.value)} required className='mb-4 p-2 border-2 rounded w-full text-black' />
+
               </label>
             )}
             <button type='submit' className='bg-rose-600 p-2 text-white rounded w-full text-center hover:bg-blue-600'>Pay: {finalAmount}</button>
