@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import { setTimeout } from "timers";
+import Spinner from '@/components/Spinner';
 
 
 interface Product {
@@ -20,6 +21,7 @@ export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const [showToast, setShowToast] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,11 +53,13 @@ export default function Page() {
   };
 
   const handleCheckout = async () => {
+    setLoading(true);
     router.push("/cart");
   };
 
   return (
     <div className=" bg-gray-300 container-none mx-auto min-h-screen p-4">
+      {loading && <Spinner />}
       <button
         onClick={handleCheckout}
         className="bg-rose-600  text-white px-2 py-1 rounded shadow-md mt-3   hover:bg-blue-600 transition"

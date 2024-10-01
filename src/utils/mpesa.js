@@ -5,9 +5,8 @@ import { headers } from "next/headers";
 const URL = 'https://sandbox.safaricom.co.ke';
 
 const getToken = async () => {
-  const consumerKey = process.env.MPESA_CONSUMER_KEY;
-  const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-  const auth = new Buffer.from(`${consumerKey}: ${consumerSecret}`).toString('base64');
+
+
 
   try {
     const response = await axios.get(`${URL}/oauth/v1/generate?grant_type=client_credentials`, {
@@ -39,11 +38,9 @@ const STKPush = async (amount, phoneNumber) => {
     ("0" + date.getSeconds()).slice(-2);
 
 
-  // Generate password dynamically
+
   const password = new Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
 
-  // Ensure phone number is in 254 format
-  const sanitizedPhoneNumber = phoneNumber.replace(/[^0-9]/g, '').replace(/^0/, '254');
 
   const payload = {
     BusinessShortCode: shortcode,
@@ -54,7 +51,7 @@ const STKPush = async (amount, phoneNumber) => {
     PartyA: phoneNumber,  // Correctly formatted phone number
     PartyB: shortcode,
     PhoneNumber: phoneNumber,
-    CallBackURL: "https://8656-105-163-1-227.ngrok-free.app/api/mpesa/callback",
+    CallBackURL: "https://dcb2-105-163-1-227.ngrok-free.app/mpesa/callback",
     AccountReference: "Test",
     TransactionDesc: "Test",
   };

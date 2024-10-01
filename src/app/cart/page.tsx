@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RiDeleteBin2Line } from "react-icons/ri";
-
+import Spinner from '@/components/Spinner';
 interface Product {
   _id: number;
   name: string;
@@ -24,9 +24,8 @@ export default function Page() {
     ([]);
 
   const router = useRouter();
-  const [deliveryOption, setDeliveryOption] = useState('standard');
-  const [deliveryFee, setDeliveryFee] = useState(100);
-
+  const [deliveryOption, setDeliveryOption] = useState('standard')
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -37,7 +36,7 @@ export default function Page() {
     setCart(clearCart)
   }, []);
 
-
+  const deliveryFee = deliveryOption === 'standard' ? 50 : 100;
 
 
 
@@ -49,6 +48,7 @@ export default function Page() {
 
   const handlePayment = () => {
     const total = getTotalItems();
+    setLoading(true);
     router.push(`/Payment?total=${total}&deliveryFee=${deliveryFee}&deliveryOption=${deliveryOption}`);
   };
 
@@ -60,6 +60,7 @@ export default function Page() {
 
   return (
     <div className="bg-gray-300 min-h-screen">
+      {loading && <Spinner />}
       <h1 className="text-center text-rose-600 p-4 no-underline hover:underline text-lg">
         Your Cart
       </h1>
@@ -82,7 +83,7 @@ export default function Page() {
               <h2 className="text-rose-600">{product.name}</h2>
 
               <p className="font-bold text-black">Delivery Option:
-                <select value={deliveryOption} onChange={(e) => { setDeliveryOption(e.target.value); setDeliveryFee(e.target.value === 'standard' ? 50 : 100) }}><option value="standard">Standard Delivery KSh 50</option>
+                <select value={deliveryOption} onChange={(e) => setDeliveryOption(e.target.value)}><option value="standard">Standard Delivery KSh 50</option>
                   <option value="express">Express Delivery KSh 100</option>
                 </select>
               </p>
@@ -97,7 +98,8 @@ export default function Page() {
             </div>
           ))}
         </div>
-      )}
+      )
+      }
       <div className="flex justify-center">
         <button
           onClick={handlePayment}
@@ -106,6 +108,6 @@ export default function Page() {
           Proceed to Payment
         </button>
       </div>
-    </div>
+    </div >
   );
 }
