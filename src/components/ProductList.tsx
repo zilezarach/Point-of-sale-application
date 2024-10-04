@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import axios from "axios";
 import { RecursiveKeyValuePair } from "tailwindcss/types/config";
@@ -39,7 +39,7 @@ const ProductList: React.FC<ProductListProps> = ({ productsUpdated }) => {
   const handleRemoveProduct = async (id: string) => {
     try {
       await axios.delete(`/api/products/${id}`);
-      setProducts(products.filter((product) => product._id));
+      setProducts(products.filter((product) => product._id === id));
     } catch (error) {
       setError("Failed removing products");
     }

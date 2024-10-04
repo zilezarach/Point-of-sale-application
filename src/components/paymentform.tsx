@@ -33,10 +33,43 @@ const paymentForm: React.FC<PaymentFormProps> = ({ total }) => {
         transactionDesc,
       });
       console.log(response.data);
+      if (response.status === 200) {
+        await saveTransaction();
+      } else {
+        alert('Payment Failed:');
+      }
+
     } catch (error) {
-      console.error('Payment Error:', error);
+      console.error('Payment Error:', error)
     }
   };
+
+  const saveTransaction = async () => {
+    try {
+      const transactionData = {
+        transactionId: Date.now().toString(), // Unique transaction ID
+        amount: finalAmount,
+        paymentMethod,
+        phoneNumber,
+        customerEmail: email,
+        deliveryOption,
+        transactionDesc,
+        accountReference,
+        transactionType: 'e-commerce', // 'e-commerce' or 'POS'
+      };
+
+      const response = await axios.post('/api/transactions', transactionData);
+
+      if (response.status === 200) {
+        console.log('Transaction saved successfully:', response.data);
+      } else {
+        console.error('Error saving transaction:', response.data.error);
+      }
+    } catch (error) {
+      console.error('Failed to save transaction:', error);
+    }
+  };
+
   return (
     <div className='flex flex-col h-screen md:flex-row'>
       <div className='md:w-1/2 items-center justify-center bg-gray-200'>
