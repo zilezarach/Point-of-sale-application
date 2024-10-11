@@ -233,7 +233,7 @@ export default function Page() {
 
   // Print receipt function using react-to-print
   const handlePrint = useReactToPrint({
-    contentRef,
+
     documentTitle: 'Receipt',
     onAfterPrint: () => alert('Print successful')
 

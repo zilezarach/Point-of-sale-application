@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import clientPromise from "../../../lib/db";
 
 export async function GET(request) {
@@ -21,6 +20,7 @@ export async function POST(request) {
     const client = await clientPromise;
     const db = client.db("pos");
     const body = await request.json();
+
     const result = await db.collection("transactions").insertOne(body);
     return NextResponse.json(result);
   } catch (error) {
@@ -30,3 +30,4 @@ export async function POST(request) {
     );
   }
 }
+

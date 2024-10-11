@@ -34,7 +34,8 @@ const paymentForm: React.FC<PaymentFormProps> = ({ total }) => {
       });
       console.log(response.data);
       if (response.status === 200) {
-        await saveTransaction();
+        await saveTransaction()
+        router.push("/success");
       } else {
         alert('Payment Failed:');
       }
