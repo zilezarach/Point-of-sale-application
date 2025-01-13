@@ -1,17 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PaymentForm from "@/components/paymentform";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 export default function Payment() {
   const searchParams = useSearchParams();
-  const total = parseFloat(searchParams.get("total") || "0");
+  const [total, setTotal] = useState(0);
 
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <PaymentForm total={total} />
-    </Suspense>
-  );
+  useEffect(() => {
+    const totalPrice = parseFloat(searchParams.get("total") || "0");
+    setTotal(totalPrice);
+  }, [searchParams]);
+
+  return <PaymentForm total={total} />;
 }
