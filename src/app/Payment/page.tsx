@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import PaymentForm from "@/components/paymentform";
+import dynamic from "next/dynamic";";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+
+const PaymentForm = dynamic(() => import("@/components/paymentform"), {
+  ssr: false,
+});
 
 export default function Payment() {
   const searchParams = useSearchParams();
