@@ -20,19 +20,34 @@ interface Product {
   stock: string;
   qty: number;
 }
-const Receipt = React.forwardRef(({ products, totalAmount, grossPrice }: { products: Product[], totalAmount: number, grossPrice: number }, ref: any) => (
-  <div ref={ref} className="receipt p-4 border rounded border-gray-600">
-    <h1 className="text-2xl font-bold">Receipt</h1>
-    <h2 className="text-lg font-semibold mt-2">Items Purchased:</h2>
-    {products.map((product) => (
-      <div key={product.id} className="flex justify-between">
-        <p>{product.name} - ${product.price.toFixed(2)} x {product.qty}</p>
-      </div>
-    ))}
-    <h2 className="text-lg font-semibold mt-2">Total Amount: ${totalAmount.toFixed(2)}</h2>
-    <h2 className="text-lg font-semibold">Gross Price (Inc Tax): ${grossPrice.toFixed(2)}</h2>
-  </div>
-));
+const Receipt = React.forwardRef(
+  (
+    {
+      products,
+      totalAmount,
+      grossPrice,
+    }: { products: Product[]; totalAmount: number; grossPrice: number },
+    ref: React.Ref<HTMLDivElement>,
+  ) => (
+    <div ref={ref} className="receipt p-4 border rounded border-gray-600">
+      <h1 className="text-2xl font-bold">Receipt</h1>
+      <h2 className="text-lg font-semibold mt-2">Items Purchased:</h2>
+      {products.map((product) => (
+        <div key={product.id} className="flex justify-between">
+          <p>
+            {product.name} - ${product.price.toFixed(2)} x {product.qty}
+          </p>
+        </div>
+      ))}
+      <h2 className="text-lg font-semibold mt-2">
+        Total Amount: ${totalAmount.toFixed(2)}
+      </h2>
+      <h2 className="text-lg font-semibold">
+        Gross Price (Inc Tax): ${grossPrice.toFixed(2)}
+      </h2>
+    </div>
+  ),
+);
 
 export default function Page() {
   const router = useRouter();
@@ -42,7 +57,7 @@ export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [receiptData, setReceiptData] = useState<any>(null);
-  const receiptRef = useRef<HTMLDivElement | null>(null); // Ref for printing the receipt
+  const contentRef = useRef<HTMLDivElement>(null); // Ref for printing the receipt
   const TAX_RATE = 0.16;
 
   // Fetch product details by ID
@@ -57,8 +72,6 @@ export default function Page() {
       setError("Product not found");
     }
   };
-
-
 
   const handleAddProduct = () => {
     if (productId) fetchProduct(productId);
@@ -233,12 +246,13 @@ export default function Page() {
 
   // Print receipt function using react-to-print
   const handlePrint = useReactToPrint({
-
-    documentTitle: 'Receipt',
-    onAfterPrint: () => alert('Print successful')
-
+    contentRef,
+    documentTitle: "Receipt",
+    onAfterPrint: () => alert("Print successful"),
   });
-
+  const handlePrintClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    handlePrint();
+  };
   return (
     <div className="bg-gray-300 container-none mx-auto px-4">
       <Navbar />
@@ -270,18 +284,28 @@ export default function Page() {
             <tbody>
               {products.map((product) => (
                 <tr key={product.id}>
-                  <td className="text-black border p-2 font-bold">{product.name}</td>
+                  <td className="text-black border p-2 font-bold">
+                    {product.name}
+                  </td>
                   <td className="text-black border p-2 font-bold">1</td>
-                  <td className="text-black border p-2 font-bold">{product.price}</td>
+                  <td className="text-black border p-2 font-bold">
+                    {product.price}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
           <div className="mb-8">
             <div className="grid grid-cols-2">
-              <div className="text-black font-bold ml-3 mb-3">Total Items: {totalItems}</div>
-              <div className="text-black font-bold mb-3">Price: ${totalAmount.toFixed(2)}</div>
-              <div className="text-black font-bold mt-4 mb-3">Gross Price (Inc Tax): ${grossPrice.toFixed(2)}</div>
+              <div className="text-black font-bold ml-3 mb-3">
+                Total Items: {totalItems}
+              </div>
+              <div className="text-black font-bold mb-3">
+                Price: ${totalAmount.toFixed(2)}
+              </div>
+              <div className="text-black font-bold mt-4 mb-3">
+                Gross Price (Inc Tax): ${grossPrice.toFixed(2)}
+              </div>
             </div>
           </div>
           <button
@@ -303,16 +327,19 @@ export default function Page() {
             <FcCancel /> Clear
           </button>
           <button
-            onClick={handlePrint}
+            onClick={handlePrintClick}
             className="rounded-full bg-yellow-500 hover:bg-teal-900 ml-5 mb-3 p-2"
           >
             <IoPrintSharp /> Print Receipt
           </button>
-          {error && <p className="text-center text-rose-600 font-bold">{error}</p>} </div>
+          {error && (
+            <p className="text-center text-rose-600 font-bold">{error}</p>
+          )}{" "}
+        </div>
 
         {receiptData && (
           <Receipt
-            ref={receiptRef}
+            ref={contentRef}
             products={receiptData.items}
             totalAmount={totalAmount}
             grossPrice={grossPrice}
@@ -350,7 +377,5 @@ export default function Page() {
         </div>
       </div>
     </div>
-  )
-};
-
-
+  );
+}
