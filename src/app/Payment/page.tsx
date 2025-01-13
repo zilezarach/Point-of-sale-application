@@ -10,7 +10,7 @@ export default function Payment() {
   const total = parseFloat(searchParams.get("total") || "0");
 
   return (
-    <Suspense>
+    <Suspense fallback={<div>Loading...</div>}>
       <PaymentForm total={total} />
     </Suspense>
   );
