@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/db";
-import { ObjectId } from "mongodb"
+import { ObjectId } from "mongodb";
 
 export async function GET() {
   try {
@@ -52,52 +52,71 @@ export async function POST(req) {
   }
 }
 
-export default async function handler(req, res) {
-  const { method } = req;
+export async function PATCH(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const productId = searchParams.get("productId");
 
-  if (method === "PATCH") {
-    const { productId } = req.query;
-    const { qty } = req.body;
-
-    try {
-      const client = await clientPromise;
-      const db = client.db("pos");
-      const productsCollection = db.collection("products");
-
-      // Find the product by ID
-      const product = await productsCollection.findOne({
-        _id: new ObjectId(productId),
-      });
-
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-
-      console.log(`Current stock: ${product.stock}`);
-
-      // Calculate new stock value
-      const newStock = product.stock - qty;
-
-      // Ensure stock doesn't go negative
-      if (newStock < 0) {
-        return res.status(400).json({ message: "Insufficient stock" });
-      }
-
-      // Update the stock in the database
-      await productsCollection.updateOne(
-        { _id: new ObjectId(productId) },
-        { $set: { stock: newStock } },
+    if (!productId) {
+      return NextResponse.json(
+        { message: "Product ID is required" },
+        { status: 400 },
       );
-
-      // Log the new stock value
-      console.log(`Updated stock: ${newStock}`);
-
-      res.status(200).json({ message: "Stock updated", newStock });
-    } catch (error) {
-      res.status(500).json({ message: "Error updating stock", error });
     }
-  } else {
-    res.setHeader("Allow", ["PATCH"]);
-    res.status(405).end(`Method ${method} Not Allowed`);
+
+    const { qty } = await req.json();
+
+    if (!qty || qty <= 0) {
+      return NextResponse.json(
+        { message: "Invalid quantity" },
+        { status: 400 },
+      );
+    }
+
+    const client = await clientPromise;
+    const db = client.db("pos");
+    const productsCollection = db.collection("products");
+
+    // Find the product by ID
+    const product = await productsCollection.findOne({
+      _id: new ObjectId(productId),
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 },
+      );
+    }
+
+    console.log(`Current stock: ${product.stock}`);
+
+    // Calculate new stock value
+    const newStock = product.stock - qty;
+
+    // Ensure stock doesn't go negative
+    if (newStock < 0) {
+      return NextResponse.json(
+        { message: "Insufficient stock" },
+        { status: 400 },
+      );
+    }
+
+    // Update the stock in the database
+    await productsCollection.updateOne(
+      { _id: new ObjectId(productId) },
+      { $set: { stock: newStock } },
+    );
+
+    // Log the new stock value
+    console.log(`Updated stock: ${newStock}`);
+
+    return NextResponse.json({ message: "Stock updated", newStock });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: "Error updating stock", error },
+      { status: 500 },
+    );
   }
 }
