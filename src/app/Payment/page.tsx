@@ -7,12 +7,14 @@ import { Suspense } from "react";
 
 export default function Payment() {
   const searchParams = useSearchParams();
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState<number | null>(null);
 
   useEffect(() => {
     const totalPrice = parseFloat(searchParams.get("total") || "0");
     setTotal(totalPrice);
   }, [searchParams]);
-
+  if (total === null) {
+    return <div>Loading...</div>;
+  }
   return <PaymentForm total={total} />;
 }
