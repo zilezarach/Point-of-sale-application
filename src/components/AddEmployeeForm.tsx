@@ -17,7 +17,7 @@ const AddEmployeeForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [role, setRole] = useState<string>("Employee");
+  const [role, setRole] = useState<string>("employee");
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [token, setToken] = useState(null);
@@ -119,7 +119,8 @@ const AddEmployeeForm = () => {
       </div>
       <button
         onClick={handleAddEmployee}
-        className="p-3 bg-rose-600 rounded font-black hover:bg-indigo-700 mb-6" >
+        className="p-3 bg-rose-600 rounded font-black hover:bg-indigo-700 mb-6"
+      >
         Register
       </button>
       <h2 className="text-rose-600 font-bold mb-6 text-2xl">Employee Roster</h2>
