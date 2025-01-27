@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import { setTimeout } from "timers";
-import Spinner from '@/components/Spinner';
-
+import Spinner from "@/components/Spinner";
 
 interface Product {
   _id: number;
@@ -58,14 +57,16 @@ export default function Page() {
   };
 
   return (
-    <div className=" bg-gray-300 container-none mx-auto min-h-screen p-4">
+    <div className="bg-gray-300 min-h-screen p-4">
       {loading && <Spinner />}
-      <button
-        onClick={handleCheckout}
-        className="bg-rose-600  text-white px-2 py-1 rounded shadow-md mt-3   hover:bg-blue-600 transition"
-      >
-        Proceed to Checkout
-      </button>
+      <div className="flex justify-center my-2">
+        <button
+          onClick={handleCheckout}
+          className="bg-rose-600  text-white px-2 py-1 rounded shadow-md mt-3   hover:bg-blue-600 transition"
+        >
+          Proceed to Checkout
+        </button>
+      </div>
       {showToast && <div className="toast">Product added to Cart!!</div>}
       <h1 className="text-center text-rose-600 font-bold no-underline hover:underline text-lg">
         Shop Our Products
@@ -84,7 +85,12 @@ export default function Page() {
             className="border p-4 rounded shadow-md border-black "
           >
             <img
-              src={`data:image/png;base64,${product.image}`} alt="" className="object-cover w-full" width={40} height={40} />
+              src={`data:image/png;base64,${product.image}`}
+              alt=""
+              className="object-cover w-full rounded mb-2"
+              width={40}
+              height={40}
+            />
             <h2 className="text-lg font-bold text-rose-600">{product.name}</h2>
             <p className="text-sm font-bold text-black">
               {product.description}

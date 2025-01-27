@@ -52,11 +52,11 @@ const SignIn = () => {
 
   return (
     <div className="flex flex-col h-screen md:flex-row">
-      <div className=" md:w-1/2 flex items-center justify-center bg-gray-300">
+      <div className="w-full md:w-1/2 flex-1 flex items-center justify-center bg-gray-300 p-4">
         <Image src="/logo2.png" width={100} height={100} alt="logo" />
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-10 rounded shadow-md"
+          className="bg-white p-6 md:p-10 rounded shadow-md w-full max-w-md"
         >
           <h2 className="text-2xl font-bold mb-4 text-red-600 no-underline hover:underline">
             Welcome to Zacc
@@ -100,7 +100,7 @@ const SignIn = () => {
           </div>
           <button
             type="submit"
-            className=" flex items-center justify-center bg-rose-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
+            className=" w-full flex items-center justify-center bg-rose-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
           >
             {loading ? (
               <div className="flex justify-center items-center">
@@ -113,7 +113,7 @@ const SignIn = () => {
         </form>
       </div>
       <div
-        className=" hidden md:block md:flex-1 bg-cover bg-center"
+        className="hidden md:block md:flex-1 bg-cover bg-center"
         style={{ backgroundImage: "url(/background.jpg)" }}
       ></div>
     </div>

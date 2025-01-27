@@ -27,45 +27,43 @@ const Sidebar = () => {
     router.push("/admin");
   };
   return (
-    <div className="h-full bg-gray-300 text-white p-4 rounded shadow-sm">
+    <div className="h-full bg-gray-300 text-white p-4 rounded shadow-sm flex flex-col">
       {loading && <Spinner />}
-      <h2 className=" text-2xl font-bold text-rose-500 mb-6 no-underline hover:underline">
-        Zacc Management.
-        <Image
-          src="/logo2.png"
-          alt=""
-          width={50}
-          height={50}
-          className=" no-underline hover:underline"
-        />
-      </h2>
-      <div className="mb-5">
+      <div className="flex items-center gap-2 mb-4 md:mb-6 p-2">
+        <h2 className=" text-xl md:text-2xl font-bold text-rose-500 mb-6 no-underline hover:underline">
+          Zacc Management.
+          <Image
+            src="/logo2.png"
+            alt=""
+            width={50}
+            height={50}
+            className=" no-underline hover:underline"
+          />
+        </h2>
+      </div>
+      <div className="flex flex-col gap-2 flex-1">
         <button
           onClick={handleHome}
           disabled={loading}
-          className="rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
+          className="flex items-center rounded bg-rose-600 text-white hover:bg-indigo-600 w-full p-2 md:p-3"
         >
-          <FcHome />
+          <FcHome className="text-xl flex-shrink-0" />
           Home
         </button>
-      </div>
-      <div className="mb-5">
         <button
           onClick={handleproduct}
-          className=" rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
+          className=" flex items-center w-full md:p-3 rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
           disabled={loading}
         >
-          <TbShoppingCartDollar />
+          <TbShoppingCartDollar className="text-xl flex-shrink-0" />
           Product Management
         </button>
-      </div>
-      <div className="mb-5">
         <button
           onClick={handleEmployee}
-          className="rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
+          className=" flex items-center w-full md:p-3 rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
           disabled={loading}
         >
-          <FcManager />
+          <FcManager className="text-xl flex-shrink-0" />
           Employee Management.
         </button>
       </div>

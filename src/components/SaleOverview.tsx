@@ -7,7 +7,7 @@ const SaleOverview: React.FC = () => {
   const customerData = [39, 30, 23, 22, 12, 12, 11, 21, 12, 13, 16, 19];
   const orderData = [21, 22, 12, 11, 15, 12, 16, 12, 12, 12, 13, 21];
   return (
-    <div className="p-4 bg-white rounded shadow-md">
+    <div className="p-4 bg-white rounded shadow-md h-screen">
       <h2 className="text-2xl font-bold mb-4 text-rose-500 no-underline hover:underline">
         Sales Overview
       </h2>

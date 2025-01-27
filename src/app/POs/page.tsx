@@ -254,11 +254,11 @@ export default function Page() {
     handlePrint();
   };
   return (
-    <div className="bg-gray-300 container-none mx-auto px-4">
+    <div className="bg-gray-300 min-h-screen">
       <Navbar />
-      <div className="flex">
-        <div className="rounded bg-white shadow-md mt-5 w-1/3 ml-5 mb-5">
-          <div className="mb-4 mt-4 ml-4 w-full flex">
+      <div className="flex flex-col md:flex-row p-2 gap-2">
+        <div className="bg-white rounded-lg shadow-md p-3 w-full md:w-1/3">
+          <div className="flex gap-2 mb-4">
             <input
               type="text"
               placeholder="Scan Barcode"
@@ -273,106 +273,130 @@ export default function Page() {
               <FaCheck />
             </button>
           </div>
-          <table className="w-4/5 mb-144 shadow rounded ml-5 mr-2">
-            <thead>
-              <tr>
-                <th className="text-black font-bold p-2 border">Item</th>
-                <th className="text-black font-bold p-2 border">Qty</th>
-                <th className="text-black font-bold p-2 border">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td className="text-black border p-2 font-bold">
-                    {product.name}
-                  </td>
-                  <td className="text-black border p-2 font-bold">1</td>
-                  <td className="text-black border p-2 font-bold">
-                    {product.price}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full mb-4">
+              <thead>
+                <tr>
+                  <th className="text-black font-bold p-2 border">Item</th>
+                  <th className="text-black font-bold p-2 border">Qty</th>
+                  <th className="text-black font-bold p-2 border">Price</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mb-8">
-            <div className="grid grid-cols-2">
-              <div className="text-black font-bold ml-3 mb-3">
-                Total Items: {totalItems}
-              </div>
-              <div className="text-black font-bold mb-3">
-                Price: ${totalAmount.toFixed(2)}
-              </div>
-              <div className="text-black font-bold mt-4 mb-3">
-                Gross Price (Inc Tax): ${grossPrice.toFixed(2)}
-              </div>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product.id}>
+                    <td className="text-black border p-2 font-bold">
+                      {product.name}
+                    </td>
+                    <td className="text-black border p-2 font-bold">1</td>
+                    <td className="text-black border p-2 font-bold">
+                      {product.price}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="space-y-2 mb-4">
+            <div className="flex justify-between">
+              <span className="font-bold">Total Items:</span>
+              <span>{totalItems}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-bold">Subtotal:</span>
+              <span>${totalAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-bold">Tax (16%):</span>
+              <span>${taxAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between border-t pt-2">
+              <span className="font-bold">Total:</span>
+              <span>${grossPrice.toFixed(2)}</span>
             </div>
           </div>
-          <button
-            onClick={handleMobilePayment}
-            className="rounded-full bg-green-500 hover:bg-rose-600 ml-3 mb-3 p-2"
-          >
-            <MdSendToMobile /> Mobile
-          </button>
-          <button
-            onClick={handleCashPayment}
-            className="rounded-full bg-blue-600 hover:bg-green-600 ml-8 mb-3 p-2"
-          >
-            <HiOutlineCash /> Cash
-          </button>
-          <button
-            onClick={handleCancel}
-            className="rounded-full bg-black hover:bg-cyan-800 ml-10 mb-3 p-2"
-          >
-            <FcCancel /> Clear
-          </button>
-          <button
-            onClick={handlePrintClick}
-            className="rounded-full bg-yellow-500 hover:bg-teal-900 ml-5 mb-3 p-2"
-          >
-            <IoPrintSharp /> Print Receipt
-          </button>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={handleMobilePayment}
+              className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-lg flex items-center justify-center gap-2"
+            >
+              <MdSendToMobile className="text-xl" />
+              <span className="text-sm">Mobile</span>
+            </button>
+            <button
+              onClick={handleCashPayment}
+              className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg flex items-center justify-center gap-2"
+            >
+              <HiOutlineCash className="text-xl" />
+              <span className="text-sm">Cash</span>
+            </button>
+            <button
+              onClick={handleCancel}
+              className="bg-gray-800 hover:bg-gray-900 text-white p-3 rounded-lg flex items-center justify-center gap-2 col-span-2"
+            >
+              <FcCancel className="text-xl" />
+              <span className="text-sm">Clear All</span>
+            </button>
+            <button
+              onClick={handlePrintClick}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-lg flex items-center justify-center gap-2 col-span-2"
+            >
+              <IoPrintSharp className="text-xl" />
+              <span className="text-sm">Print Receipt</span>
+            </button>
+          </div>
+
           {error && (
-            <p className="text-center text-rose-600 font-bold">{error}</p>
-          )}{" "}
+            <p className="text-red-600 text-center mt-4 font-bold">{error}</p>
+          )}
         </div>
 
-        {receiptData && (
-          <Receipt
-            ref={contentRef}
-            products={receiptData.items}
-            totalAmount={totalAmount}
-            grossPrice={grossPrice}
-          />
-        )}
-
-        <div className=" rounded w-2/3 bg-white shadow-md mt-5 ml-5 mr-4 mb-5">
-          <div className="mt-4 mb-4 ml-4 mr-4">
+        {/* Right Panel */}
+        <div className="bg-white rounded-lg shadow-md p-3 w-full md:w-2/3">
+          <div className="flex flex-col md:flex-row gap-2 mb-4">
             <input
               onChange={(e) => setSearchQuery(e.target.value)}
               value={searchQuery}
               type="text"
               placeholder="Search for Product"
-              className="border rounded text-black shadow-md focus:outline-none p-2 w-96"
+              className="border rounded text-black p-2 focus:outline-none flex-grow"
             />
             <button
               onClick={handleSearch}
-              className="rounded-r bg-rose-600 hover:bg-indigo-600 p-3"
+              className="rounded bg-rose-600 hover:bg-rose-700 text-white p-2 flex items-center justify-center"
             >
               <FaCheck />
             </button>
           </div>
+
           {product && (
-            <div className="p-4 border rounded-r-none border-rose-600 ml-3 mr-3">
-              <h2 className="text-lg mb-2 text-rose-600 font-bold">
+            <div className="p-4 border rounded-lg border-rose-600">
+              <h2 className="text-lg font-bold text-rose-600 mb-2">
                 {product.name}
               </h2>
-              <p className="font-bold text-black">{product.description}</p>
-              <h1 className="text-rose-600 mt-2 mb-2 underline">
-                In Stock: {product.stock}
-              </h1>
-              <p className="text-rose-600 font-bold">Price:{product.price}</p>
+              <p className="text-gray-700 mb-2">{product.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold">
+                  Stock: {product.stock}
+                </span>
+                <span className="text-lg font-bold text-rose-600">
+                  ${product.price.toFixed(2)}
+                </span>
+              </div>
             </div>
+          )}
+        </div>
+
+        {/* Receipt - Hidden until printed */}
+        <div className="hidden">
+          {receiptData && (
+            <Receipt
+              ref={contentRef}
+              products={receiptData.items}
+              totalAmount={totalAmount}
+              grossPrice={grossPrice}
+            />
           )}
         </div>
       </div>

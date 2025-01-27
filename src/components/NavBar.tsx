@@ -46,45 +46,55 @@ export default function Navbar() {
   const handleCustomer = () => {
     router.push("/Customers");
   };
-
   return (
-    <div className="p-2">
-      <button
-        onClick={handleOrder}
-        className=" no-underline hover:underline  rounded bg-rose-600 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3"
-      >
-        <FcCustomerSupport />
-        Customer Orders
-      </button>
-      <button
-        onClick={handleCustomer}
-        className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2 ml-3 mr-3 mt-3 mb-3"
-      >
-        <BiMaleFemale />
-        Customers
-      </button>
-      <button
-        onClick={handleTransaction}
-        className=" no-underline hover:underline rounded bg-green-500 hover:bg-blue-600 p-2 ml-10 mr-3 mt-3 mb-3"
-      >
-        <FaCreditCard />
-        Transactions
-      </button>
-      <button
-        onClick={handlePopUpOpen}
-        className=" no-underline hover:underline rounded bg-emerald-500 hover:bg-blue-600 p-2 px-4 ml-3 mr-3 mt-3 mb-3"
-      >
-        <FaUser />
-        Users
-      </button>
-      {isPopUpVisible && <Modal onClose={handlePopUpClose} />}
-      <button
-        onClick={handleLogout}
-        className="no-underline hover:underline rounded bg-rose-600 hover:bg-blue-600 p-2  px-3 ml-3 mt-3 mb-2"
-      >
-        <LuLogOut />
-        LogOut
-      </button>
-    </div>
+    <nav className="p-2 bg-white shadow-md">
+      <div className="flex flex-col md:flex-row gap-2 items-stretch">
+        {/* Main Navigation Items */}
+        <div className="flex flex-1 flex-col md:flex-row gap-2">
+          <button
+            onClick={handleOrder}
+            className="flex items-center justify-center gap-2 p-2 bg-rose-100 hover:bg-rose-200 rounded-lg text-black transition-colors"
+          >
+            <FcCustomerSupport className="text-xl" />
+            <span className="text-sm md:text-base">Orders</span>
+          </button>
+
+          <button
+            onClick={handleCustomer}
+            className="flex items-center justify-center gap-2 p-2 bg-rose-100 hover:bg-rose-200 rounded-lg text-black transition-colors"
+          >
+            <BiMaleFemale className="text-xl" />
+            <span className="text-sm md:text-base">Customers</span>
+          </button>
+
+          <button
+            onClick={handleTransaction}
+            className="flex items-center justify-center gap-2 p-2 bg-green-100 hover:bg-green-200 rounded-lg text-black transition-colors"
+          >
+            <FaCreditCard className="text-xl" />
+            <span className="text-sm md:text-base">Transactions</span>
+          </button>
+
+          <button
+            onClick={() => setIsPopUpVisible(true)}
+            className="flex items-center justify-center gap-2 p-2 bg-emerald-100 hover:bg-emerald-200 rounded-lg text-black transition-colors"
+          >
+            <FaUser className="text-xl" />
+            <span className="text-sm md:text-base">Users</span>
+          </button>
+        </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center justify-center gap-2 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors"
+        >
+          <LuLogOut className="text-xl" />
+          <span className="text-sm md:text-base">Logout</span>
+        </button>
+      </div>
+
+      {isPopUpVisible && <Modal onClose={() => setIsPopUpVisible(false)} />}
+    </nav>
   );
 }
