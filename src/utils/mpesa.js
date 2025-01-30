@@ -46,7 +46,7 @@ const STKPush = async (amount, phoneNumber) => {
     PartyA: phoneNumber, // Correctly formatted phone number
     PartyB: shortcode,
     PhoneNumber: phoneNumber,
-    CallBackURL: "https://dcb2-105-163-1-227.ngrok-free.app/mpesa/callback",
+    CallBackURL: "https://zaccpos.0xzile.sbs/mpesa/callback",
     AccountReference: "Test",
     TransactionDesc: "Test",
   };
