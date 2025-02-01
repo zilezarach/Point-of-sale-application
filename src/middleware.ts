@@ -24,13 +24,12 @@ export function middleware(req: NextRequest) {
         const userRole = decode.role as string;
         if (userRole !== "admin" && userRole !== "employee") {
           return NextResponse.redirect(new URL("/Shop", req.url));
-        } else {
-          return NextResponse.redirect(new URL("/Shop", req.url));
         }
       }
     } catch (error) {
       return NextResponse.redirect(new URL("/Shop", req.url));
     }
+    return NextResponse.next();
   }
 }
 export const config = {
