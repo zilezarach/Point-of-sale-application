@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import axios from "axios";
 import Spinner from "./Spinner";
+import Link from "next/link";
+
 const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -110,6 +112,12 @@ const SignIn = () => {
               "Sign In"
             )}
           </button>
+          <p className="mt-2 text-center">
+            A Customer ?
+            <Link href="/Shop" className="text-rose-600 underline">
+              Visit the Shop
+            </Link>
+          </p>
         </form>
       </div>
       <div

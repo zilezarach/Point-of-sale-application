@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RiDeleteBin2Line } from "react-icons/ri";
-import Spinner from '@/components/Spinner';
+import Spinner from "@/components/Spinner";
 interface Product {
   _id: number;
   name: string;
@@ -13,32 +13,23 @@ interface Product {
   qty: number;
 }
 
-
-
-
-
-
 export default function Page() {
-  const [cart, setCart] = useState<Product[]>
-
-    ([]);
+  const [cart, setCart] = useState<Product[]>([]);
 
   const router = useRouter();
-  const [deliveryOption, setDeliveryOption] = useState('standard')
+  const [deliveryOption, setDeliveryOption] = useState("standard");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
     const clearCart = storedCart.map((product: any) => ({
       ...product,
-      price: parseFloat(product.price.toString().replace(/^0+/, '')),
-    }))
-    setCart(clearCart)
+      price: parseFloat(product.price.toString().replace(/^0+/, "")),
+    }));
+    setCart(clearCart);
   }, []);
 
-  const deliveryFee = deliveryOption === 'standard' ? 50 : 100;
-
-
+  const deliveryFee = deliveryOption === "standard" ? 50 : 100;
 
   const removeFromCart = (productId: number) => {
     const updatedCart = cart.filter((product) => product._id !== productId);
@@ -49,14 +40,19 @@ export default function Page() {
   const handlePayment = () => {
     const total = getTotalItems();
     setLoading(true);
-    router.push(`/Payment?total=${total}&deliveryFee=${deliveryFee}&deliveryOption=${deliveryOption}`);
+    router.push(
+      `/Payment?total=${total}&deliveryFee=${deliveryFee}&deliveryOption=${deliveryOption}`,
+    );
   };
 
   const getTotalItems = (): number => {
     return cart.reduce((total, item) => total + item.price, 0);
-  }
+  };
 
-  const formattedTotal = getTotalItems().toLocaleString('en-KE', { style: 'currency', currency: 'KES' });
+  const formattedTotal = getTotalItems().toLocaleString("en-KE", {
+    style: "currency",
+    currency: "KES",
+  });
 
   return (
     <div className="bg-gray-300 min-h-screen">
@@ -82,12 +78,19 @@ export default function Page() {
               />
               <h2 className="text-rose-600">{product.name}</h2>
 
-              <p className="font-bold text-black">Delivery Option:
-                <select value={deliveryOption} onChange={(e) => setDeliveryOption(e.target.value)}><option value="standard">Standard Delivery KSh 50</option>
+              <p className="font-bold text-black">
+                Delivery Option:
+                <select
+                  value={deliveryOption}
+                  onChange={(e) => setDeliveryOption(e.target.value)}
+                >
+                  <option value="standard">Standard Delivery KSh 50</option>
                   <option value="express">Express Delivery KSh 100</option>
                 </select>
               </p>
-              <p className=" font-bold text-rose-600">Total Price: {formattedTotal}</p>
+              <p className=" font-bold text-rose-600">
+                Total Price: {formattedTotal}
+              </p>
 
               <button
                 onClick={() => removeFromCart(product._id)}
@@ -98,8 +101,7 @@ export default function Page() {
             </div>
           ))}
         </div>
-      )
-      }
+      )}
       <div className="flex justify-center">
         <button
           onClick={handlePayment}
@@ -108,6 +110,6 @@ export default function Page() {
           Proceed to Payment
         </button>
       </div>
-    </div >
+    </div>
   );
 }
