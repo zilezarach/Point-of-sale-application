@@ -18,11 +18,13 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/Shop", req.url));
     }
     try {
-      const decode = jwt.verify(token, process.env.JWT_SECRET!);
+      const decode = jwt.verify(token, process.env.JWT_SECRET!) as MyJwtPayload;
 
-      if (typeof decode === "object" && decode.role) {
-        const userRole = decode.role as string;
+      if (decode && decode.role) {
+        const userRole = decode.role.toLowerCase();
         if (userRole !== "admin" && userRole !== "employee") {
+          return NextResponse.redirect(new URL("/Shop", req.url));
+        } else {
           return NextResponse.redirect(new URL("/Shop", req.url));
         }
       }
