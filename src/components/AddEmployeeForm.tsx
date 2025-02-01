@@ -132,6 +132,9 @@ const AddEmployeeForm = () => {
             {employees.map((employee) => (
               <tr key={employee._id}>
                 <td className="border px-4 py-2 text-black">{employee.name}</td>
+                <td className="border px-4 py-2 text-black">
+                  {employee.username}
+                </td>
                 <td className="border px-4 py-2 text-black">{employee.role}</td>
                 <td className="border px-4 py-2 text-black">
                   {employee.email}
