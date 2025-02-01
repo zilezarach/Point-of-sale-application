@@ -34,5 +34,18 @@ export async function POST(request) {
     { expiresIn: "1h" },
   );
 
-  return NextResponse.json({ token, role: employee.role }, { status: 200 });
+  const response = NextResponse.json(
+    { token, role: employee.role },
+    { status: 200 },
+  );
+
+  // Set the cookie using the response's cookies API:
+  response.cookies.set("token", token, {
+    path: "/",
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+
+  return response;
 }
