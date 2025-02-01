@@ -112,8 +112,8 @@ const SignIn = () => {
               "Sign In"
             )}
           </button>
-          <p className="mt-2 text-center">
-            A Customer ?
+          <p className="mt-2 text-center text-black">
+            A Customer?{""}
             <Link href="/Shop" className="text-rose-600 underline">
               Visit the Shop
             </Link>
