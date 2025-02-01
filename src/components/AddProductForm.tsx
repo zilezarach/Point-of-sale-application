@@ -28,18 +28,6 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
   const [error, setError] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get<Product[]>("/api/products");
-      setProducts(response.data);
-    } catch (error) {
-      console.error("Error fetching Products:", error);
-    }
-  };
   const handlesubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const formData = new FormData();
@@ -71,7 +59,7 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
       console.error("No file detected");
       return;
     }
-    // Save the uploaded image URL
+    console.error("No file detected");
   };
 
   return (
