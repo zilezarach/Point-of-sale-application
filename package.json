@@ -22,6 +22,7 @@
     "fs": "^0.0.1-security",
     "html2canvas": "^1.4.1",
     "intasend-node": "^1.1.1",
+    "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",
     "mongodb": "^6.8.0",

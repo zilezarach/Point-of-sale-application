@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
-interface MyJwtPayload extends JwtPayload {
-  role: string;
-  username: string;
-}
+const getCookies = () => new TextEncoder().encode(process.env.JWT_SECRET!);
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   console.log("Middleware triggered for:", pathname);
 
@@ -21,19 +18,9 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/Shop", req.url));
     }
     try {
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET!,
-      ) as MyJwtPayload;
-      console.log("Decoded token:", decoded);
-      if (decoded && decoded.role) {
-        const userRole = decoded.role.toLowerCase();
-        if (userRole !== "admin" && userRole !== "employee") {
-          console.log("User role not authorized:", userRole);
-          return NextResponse.redirect(new URL("/Shop", req.url));
-        }
-      } else {
-        console.log("Token does not have a role field. Redirecting.");
+      const { payload } = await jwtVerify(token, getCookies());
+      const userRole = (payload.role as string)?.toLowerCase();
+      if (userRole !== "admin" && userRole !== "employee") {
         return NextResponse.redirect(new URL("/Shop", req.url));
       }
     } catch (error) {
