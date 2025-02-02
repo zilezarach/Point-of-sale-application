@@ -7,8 +7,19 @@ import { LuLogOut } from "react-icons/lu";
 const Header = () => {
   const router = useRouter();
 
-  const handleLogout = () => {
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      if (res.ok) {
+        router.push("/");
+      } else {
+        console.error("Cannot logout");
+      }
+    } catch (error) {
+      console.error("Encountered problem when logout", error);
+    }
   };
 
   return (
