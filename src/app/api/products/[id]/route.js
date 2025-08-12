@@ -25,7 +25,7 @@ export async function DELETE(request, { params }) {
 }
 export async function GET(request, { params }) {
   const client = await clientPromise;
-  const db = client.db("pos"); // Assuming 'pos' is your database name
+  const db = client.db("pos");
   const { id } = params;
 
   try {

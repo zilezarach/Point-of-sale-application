@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const { MongoClient } = require("mongodb");
 
-const uri = "mongodb://localhost:27017/pos"; // Replace with your MongoDB URI
+const uri = "mongodb://localhost:27017/pos";
 const client = new MongoClient(uri);
 
 const saltRounds = 10;

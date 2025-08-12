@@ -20,10 +20,10 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 );
 
-export default function Page() {
+export default function Order() {
   type Order = {
     _id: string;
     date: string;
@@ -34,9 +34,10 @@ export default function Page() {
   };
 
   useEffect(() => {
-    fetch("api/orders")
+    fetch("/api/orders")
       .then((res) => res.json())
       .then((data) => setOrders(data))
+      .then((data: any) => processWeeklyData(data))
       .catch((error) => console.error("Error fetching orders", error));
   }, []);
 
@@ -51,7 +52,7 @@ export default function Page() {
     order.forEach((order) => {
       const OrderDate = new Date(order.date);
       const diffDays = Math.floor(
-        (OrderDate.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60 * 24),
+        (OrderDate.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60 * 24)
       );
       if (diffDays >= 0 && diffDays < 7) {
         weeklyTransactions[diffDays]++;

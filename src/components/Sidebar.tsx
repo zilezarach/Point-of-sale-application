@@ -1,74 +1,63 @@
 "use client";
-
 import React, { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FcManager } from "react-icons/fc";
-import { TbShoppingCartDollar } from "react-icons/tb";
-import { FcHome } from "react-icons/fc";
+import { useRouter, usePathname } from "next/navigation";
+import { LuLogOut } from "react-icons/lu";
+import { navItems } from "./config/navConfig";
 import Spinner from "./Spinner";
-import dynamic from "next/dynamic";
 
-const Sidebar = () => {
+export default function Sidebar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
 
-  const handleproduct = async () => {
-    setLoading(true);
-    router.push("/admin/productMan");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/");
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
   };
-  const handleEmployee = async () => {
+
+  const handleNavClick = (route: any) => {
     setLoading(true);
-    router.push("/admin/employeeMan");
+    router.push(route);
+    setTimeout(() => setLoading(false), 500);
   };
-  const handleHome = async () => {
-    setLoading(true);
-    router.push("/admin");
-  };
+
   return (
     <div className="h-full bg-gray-300 text-white p-4 rounded shadow-sm flex flex-col">
       {loading && <Spinner />}
-      <div className="flex items-center gap-2 mb-4 md:mb-6 p-2">
-        <h2 className=" text-xl md:text-2xl font-bold text-rose-500 mb-6 no-underline hover:underline">
-          Zacc Management.
-          <Image
-            src="/logo2.png"
-            alt=""
-            width={50}
-            height={50}
-            className=" no-underline hover:underline"
-          />
-        </h2>
-      </div>
+      <h2 className="text-xl md:text-2xl font-bold text-rose-500 mb-6">
+        Zacc Management
+      </h2>
+
       <div className="flex flex-col gap-2 flex-1">
-        <button
-          onClick={handleHome}
-          disabled={loading}
-          className="flex items-center rounded bg-rose-600 text-white hover:bg-indigo-600 w-full p-2 md:p-3"
-        >
-          <FcHome className="text-xl flex-shrink-0" />
-          Home
-        </button>
-        <button
-          onClick={handleproduct}
-          className=" flex items-center w-full md:p-3 rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
-          disabled={loading}
-        >
-          <TbShoppingCartDollar className="text-xl flex-shrink-0" />
-          Product Management
-        </button>
-        <button
-          onClick={handleEmployee}
-          className=" flex items-center w-full md:p-3 rounded bg-rose-600 text-white p-3 hover:bg-indigo-600"
-          disabled={loading}
-        >
-          <FcManager className="text-xl flex-shrink-0" />
-          Employee Management.
-        </button>
+        {navItems.map(({ label, icon: Icon, route }) => (
+          <button
+            key={label}
+            onClick={() => handleNavClick(route)}
+            disabled={loading}
+            className={`flex items-center gap-2 p-3 rounded transition-colors ${
+              pathname === route
+                ? "bg-rose-600 text-white"
+                : "bg-rose-500 hover:bg-indigo-600 text-white"
+            }`}
+          >
+            <Icon className="text-xl flex-shrink-0" />
+            {label}
+          </button>
+        ))}
       </div>
+
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="flex items-center gap-2 p-3 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors mt-4"
+      >
+        <LuLogOut className="text-xl" />
+        <span>Logout</span>
+      </button>
     </div>
   );
-};
-
-export default Sidebar;
+}

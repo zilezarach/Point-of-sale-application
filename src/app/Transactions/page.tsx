@@ -22,7 +22,7 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 );
 
 interface Transaction {
@@ -33,7 +33,7 @@ interface Transaction {
   paymentMethod: "Cash" | "MobileMoney";
 }
 
-export default function Page() {
+export default function Transaction() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [weeklyData, setWeeklyData] = useState<number[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
@@ -64,7 +64,7 @@ export default function Page() {
       const transactionDate = new Date(transaction.date);
       const diffDays = Math.floor(
         (transactionDate.getTime() - startOfWeek.getTime()) /
-          (1000 * 60 * 60 * 24),
+          (1000 * 60 * 60 * 24)
       );
       if (diffDays >= 0 && diffDays < 7) {
         weeklyTransactions[diffDays]++;
@@ -116,8 +116,12 @@ export default function Page() {
       <h1 className="text-center text-lg font-bold text-rose-600 no-underline hover:underline mb-5">
         Transactions Page
       </h1>
-      <GridStats totalAmount={totalAmount} /> {/* Pass the total amount to GridStats */}
-      <div className="mb-8 shadow-md rounded bg-white" style={{ height: '400px' }}>
+      <GridStats totalAmount={totalAmount} />{" "}
+      {/* Pass the total amount to GridStats */}
+      <div
+        className="mb-8 shadow-md rounded bg-white"
+        style={{ height: "400px" }}
+      >
         <Line data={chartData} options={chartOptions} />
       </div>
       <h1 className="mb-4 font-bold text-2xl text-rose-600 no-underline hover:underline">
@@ -162,4 +166,3 @@ export default function Page() {
     </div>
   );
 }
-

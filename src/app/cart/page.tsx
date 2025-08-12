@@ -13,7 +13,7 @@ interface Product {
   qty: number;
 }
 
-export default function Page() {
+export default function Cart() {
   const [cart, setCart] = useState<Product[]>([]);
 
   const router = useRouter();
@@ -41,7 +41,7 @@ export default function Page() {
     const total = getTotalItems();
     setLoading(true);
     router.push(
-      `/Payment?total=${total}&deliveryFee=${deliveryFee}&deliveryOption=${deliveryOption}`,
+      `/Payment?total=${total}&deliveryFee=${deliveryFee}&deliveryOption=${deliveryOption}`
     );
   };
 

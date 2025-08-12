@@ -21,6 +21,8 @@ const AddEmployeeForm = () => {
   const [role, setRole] = useState<string>("employee");
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchEmployees();
@@ -36,6 +38,15 @@ const AddEmployeeForm = () => {
   };
 
   const handleAddEmployee = async () => {
+    if (!name || !username || !password || !email || !role) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
     try {
       await axios.post("/api/employees", {
         name,
@@ -44,6 +55,8 @@ const AddEmployeeForm = () => {
         role,
         email,
       });
+
+      setSuccess("✅ Employee added successfully!");
       setName("");
       setUsername("");
       setPassword("");
@@ -52,7 +65,9 @@ const AddEmployeeForm = () => {
       fetchEmployees();
     } catch (error) {
       console.error("Error adding employee:", error);
-      setError("Cannot add Employee");
+      setError("❌ Cannot add employee. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,7 +87,7 @@ const AddEmployeeForm = () => {
       </h1>
       <h1 className="font-bold underline mb-5 text-white">Add employees</h1>
       {error && <p className="mb-5 text-rose-600 font-bold">{error}</p>}
-
+      {success && <p className="mb-5 text-green-600 font-bold">{success}</p>}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
         <input
           type="text"
@@ -112,9 +127,12 @@ const AddEmployeeForm = () => {
       </div>
       <button
         onClick={handleAddEmployee}
-        className="p-3 bg-rose-600 rounded font-black hover:bg-indigo-700 w-full sm:w-auto mb-6"
+        disabled={loading}
+        className={`p-3 bg-rose-600 rounded font-black text-white hover:bg-indigo-700 w-full sm:w-auto mb-6 transition ${
+          loading ? "opacity-50 cursor-not-allowed" : ""
+        }`}
       >
-        Register
+        {loading ? "Adding..." : "Register"}
       </button>
 
       <h2 className="text-rose-600 font-bold mb-6 text-2xl">Employee Roster</h2>
@@ -149,6 +167,13 @@ const AddEmployeeForm = () => {
                 </td>
               </tr>
             ))}
+            {employees.length === 0 && (
+              <tr>
+                <td colSpan={5} className="text-center py-4 text-gray-500">
+                  No employees found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

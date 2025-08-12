@@ -16,7 +16,7 @@ interface Product {
   image: string;
 }
 
-export default function Page() {
+export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const [showToast, setShowToast] = useState(false);
@@ -50,6 +50,11 @@ export default function Page() {
       setShowToast(false);
     }, 3000);
   };
+
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) setCartItems(JSON.parse(savedCart));
+  }, []);
 
   const handleCheckout = async () => {
     setLoading(true);

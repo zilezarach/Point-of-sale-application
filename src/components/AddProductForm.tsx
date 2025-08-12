@@ -27,13 +27,25 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handlesubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (!name || !price || !stock || !description || !image) {
+      setError("Please fill in all fields and select an image.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("image", image!);
-    formData.append("stock", stock.toString());
+    formData.append("image", image);
+    formData.append("stock", stock);
     formData.append("price", price);
     formData.append("description", description);
 
@@ -44,27 +56,40 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
       });
 
       if (response.ok) {
-        alert("Product added successfully!");
+        setSuccess("✅ Product added successfully!");
+        setName("");
+        setPrice("");
+        setStock("");
+        setDescription("");
+        setImage(null);
+        setImagePreview(null);
+        onProductAdded();
       } else {
-        alert("Failed to add product.");
+        const data = await response.json();
+        setError(data.message || "❌ Failed to add product.");
       }
-    } catch (error) {
-      console.error("Error adding product:", error);
+    } catch (err) {
+      console.error("Error adding product:", err);
+      setError("❌ An error occurred while adding the product.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-      console.error("No file detected");
-      return;
+      const file = e.target.files[0];
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImage(null);
+      setImagePreview(null);
     }
-    console.error("No file detected");
   };
 
   return (
     <form
-      onSubmit={handlesubmit}
+      onSubmit={handleSubmit}
       className="bg-white p-6 rounded-lg shadow-md mb-4 min-h-fit"
     >
       <h2 className="text-rose-500 font-bold text-2xl mb-4">
@@ -118,14 +143,27 @@ const AddProductForm: React.FC<ProductProps> = ({ onProductAdded }) => {
           accept="image/*"
           type="file"
           onChange={handleImageUpload}
-          required
+          className="mb-3"
         />
+        {imagePreview && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">Image Preview:</p>
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-32 h-32 object-cover rounded border border-gray-300"
+            />
+          </div>
+        )}
       </div>
       <button
         type="submit"
-        className="w-full bg-rose-500 hover:bg-blue-500 rounded px-2 py-5 "
+        disabled={loading}
+        className={`w-full bg-rose-500 hover:bg-blue-500 rounded px-2 py-3 font-bold text-white transition ${
+          loading ? "opacity-50 cursor-not-allowed" : ""
+        }`}
       >
-        Add/Update Product
+        {loading ? "Adding..." : "Add / Update Product"}
       </button>
     </form>
   );

@@ -7,7 +7,7 @@ export async function POST(request) {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    maxAge: 0, // Immediately expire the cookie
+    maxAge: 0,
   });
   return response;
 }

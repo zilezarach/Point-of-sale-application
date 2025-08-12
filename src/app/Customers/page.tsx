@@ -2,7 +2,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-export default function Page() {
+export default function Customer() {
   type Customer = {
     id: string;
     name: string;
@@ -55,7 +55,7 @@ export default function Page() {
   const handleSelectCustomer = (id: string) => {
     if (selectedCustomers.includes(id)) {
       setSelectedCustomers(
-        selectedCustomers.filter((customerId) => customerId !== id),
+        selectedCustomers.filter((customerId) => customerId !== id)
       );
     } else {
       setSelectedCustomers([...selectedCustomers, id]);

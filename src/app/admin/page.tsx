@@ -6,7 +6,7 @@ import SaleOverview from "@/components/SaleOverview";
 import { FiMenu } from "react-icons/fi";
 import { styleText } from "util";
 
-export default function Page() {
+export default function Admin() {
   const [isSideOpen, setIsSideOpen] = useState(false);
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-200">
@@ -17,7 +17,9 @@ export default function Page() {
         <FiMenu className="text-xl" />
       </button>
       <div
-        className={`${isSideOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:relative inset-y-0 left-0 z-40 w-64 transition-transform duration-300 ease-in-out`}
+        className={`${
+          isSideOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 fixed md:relative inset-y-0 left-0 z-40 w-64 transition-transform duration-300 ease-in-out`}
       >
         <Sidebar />
       </div>

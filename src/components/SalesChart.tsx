@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -16,10 +17,10 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 );
-import { Bar } from "react-chartjs-2";
 
+// ✅ Define props type
 interface SalesChartProps {
   salesData: number[];
   customerData: number[];
@@ -34,7 +35,7 @@ const SalesChart: React.FC<SalesChartProps> = ({
   const data = {
     labels: [
       "January",
-      "febuary",
+      "February",
       "March",
       "April",
       "May",
@@ -48,39 +49,40 @@ const SalesChart: React.FC<SalesChartProps> = ({
     ],
     datasets: [
       {
-        label: "Sales",
-        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        label: "Sales (Ksh)",
+        backgroundColor: "rgba(244, 63, 94, 0.6)", // rose-500
+        borderColor: "rgba(244, 63, 94, 1)",
         borderWidth: 1,
-        hoverBackgroundColor: "rgba(54,162, 235, 0.6)",
-        borderColor: "rgba(54, 162, 235, 1)",
-        hoverBorderColor: "rgba(54, 162, 235, 1)",
+        hoverBackgroundColor: "rgba(244, 63, 94, 0.8)",
+        hoverBorderColor: "rgba(244, 63, 94, 1)",
         data: salesData,
       },
       {
         label: "Customers",
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(16, 185, 129, 0.6)", // emerald-500
+        borderColor: "rgba(16, 185, 129, 1)",
         borderWidth: 1,
-        hoverBackgroundColor: "rgba(75, 192, 192, 0.8)",
-        hoverBorderColor: "rgba(75, 192, 192, 1)",
+        hoverBackgroundColor: "rgba(16, 185, 129, 0.8)",
+        hoverBorderColor: "rgba(16, 185, 129, 1)",
         data: customerData,
       },
       {
         label: "Orders",
-        backgroundColor: "rgba(153, 102, 255, 0.6)",
-        borderColor: "rgba(153, 102, 255, 1)",
+        backgroundColor: "rgba(59, 130, 246, 0.6)", // blue-500
+        borderColor: "rgba(59, 130, 246, 1)",
         borderWidth: 1,
-        hoverBackgroundColor: "rgba(153, 102, 255, 0.8)",
-        hoverBorderColor: "rgba(153, 102, 255, 1)",
+        hoverBackgroundColor: "rgba(59, 130, 246, 0.8)",
+        hoverBorderColor: "rgba(59, 130, 246, 1)",
         data: orderData,
       },
     ],
   };
+
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     scales: {
-      y: {
-        beginAtZero: true,
-      },
+      y: { beginAtZero: true },
     },
   };
 

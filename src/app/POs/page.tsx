@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "@/components/NavBar";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
 import { MdSendToMobile } from "react-icons/md";
 import { HiOutlineCash } from "react-icons/hi";
@@ -11,45 +11,69 @@ import { useRouter } from "next/navigation";
 import { useReactToPrint } from "react-to-print";
 
 interface Product {
-  id: string;
+  _id: string;
   barcode: string;
   name: string;
   description: string;
   price: number;
   image: string;
-  stock: string;
+  stock: number;
   qty: number;
 }
+
 const Receipt = React.forwardRef(
   (
     {
       products,
       totalAmount,
+      taxAmount,
       grossPrice,
-    }: { products: Product[]; totalAmount: number; grossPrice: number },
-    ref: React.Ref<HTMLDivElement>,
+      paymentMethod,
+      cashPaid,
+      change,
+      date,
+    }: {
+      products: Product[];
+      totalAmount: number;
+      taxAmount: number;
+      grossPrice: number;
+      paymentMethod: string;
+      cashPaid?: number;
+      change?: number;
+      date: string;
+    },
+    ref: React.Ref<HTMLDivElement>
   ) => (
     <div ref={ref} className="receipt p-4 border rounded border-gray-600">
       <h1 className="text-2xl font-bold">Receipt</h1>
+      <p>Date: {date}</p>
       <h2 className="text-lg font-semibold mt-2">Items Purchased:</h2>
       {products.map((product) => (
-        <div key={product.id} className="flex justify-between">
+        <div key={product._id} className="flex justify-between">
           <p>
             {product.name} - ${product.price.toFixed(2)} x {product.qty}
           </p>
         </div>
       ))}
       <h2 className="text-lg font-semibold mt-2">
-        Total Amount: ${totalAmount.toFixed(2)}
+        Subtotal: ${totalAmount.toFixed(2)}
       </h2>
       <h2 className="text-lg font-semibold">
-        Gross Price (Inc Tax): ${grossPrice.toFixed(2)}
+        Tax (16%): ${taxAmount.toFixed(2)}
       </h2>
+      <h2 className="text-lg font-semibold">Total: ${grossPrice.toFixed(2)}</h2>
+      <p>Payment Method: {paymentMethod}</p>
+      {paymentMethod === "Cash" && (
+        <>
+          <p>Cash Paid: ${cashPaid?.toFixed(2)}</p>
+          <p>Change: ${change?.toFixed(2)}</p>
+        </>
+      )}
     </div>
-  ),
+  )
 );
 
-export default function Page() {
+export default function POS() {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [productId, setProductId] = useState<string>("");
@@ -57,33 +81,65 @@ export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [receiptData, setReceiptData] = useState<any>(null);
-  const contentRef = useRef<HTMLDivElement>(null); // Ref for printing the receipt
+  const [loading, setLoading] = useState(false);
+  const [showCashModal, setShowCashModal] = useState(false);
+  const [cashGiven, setCashGiven] = useState("");
+  const contentRef = useRef<HTMLDivElement>(null);
   const TAX_RATE = 0.16;
 
-  // Fetch product details by ID
-  const fetchProduct = async (id: string) => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    fetch("/api/auth/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.valid) {
+          router.push("/login");
+        }
+      });
+  }, []);
+
+  const fetchProduct = async (id: string, qtyToAdd: number = 1) => {
+    setLoading(true);
     try {
       const response = await fetch(`/api/products/${id}`);
       if (!response.ok) throw new Error("Product not found");
-      const product = await response.json();
-      setProducts((prev) => [...prev, product]);
+      const product: Product = await response.json();
+      if (product.stock < qtyToAdd) throw new Error("Insufficient stock");
+
+      setProducts((prev) => {
+        const existing = prev.find((p) => p._id === product._id);
+        if (existing) {
+          return prev.map((p) =>
+            p._id === product._id ? { ...p, qty: p.qty + qtyToAdd } : p
+          );
+        }
+        return [...prev, { ...product, qty: qtyToAdd }];
+      });
+      setError(null);
       setProductId("");
-    } catch (error) {
-      setError("Product not found");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAddProduct = () => {
-    if (productId) fetchProduct(productId);
-  };
-
-  const handleScan = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const id = event.target.value;
-    setProductId(id);
-    if (id) fetchProduct(id);
+  const handleScanKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      if (productId) fetchProduct(productId);
+    }
   };
 
   const handleSearch = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`/api/products/${searchQuery}`);
       if (!response.ok) throw new Error("Product not found");
@@ -93,19 +149,27 @@ export default function Page() {
     } catch (error) {
       setProduct(null);
       setError("Product not found");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const calculateGrossPrice = (items: Product[]): number => {
-    return items.reduce((total, item) => {
-      const price = Number(item.price) || 0;
-      const quantity = Number(item.qty) || 1;
-      return total + price * quantity;
-    }, 0);
+  const removeProduct = (id: string) => {
+    setProducts((prev) => prev.filter((p) => p._id !== id));
   };
 
-  const totalItems = products.length;
-  const totalAmount = calculateGrossPrice(products);
+  const updateQty = (id: string, newQty: number) => {
+    if (newQty < 1) return removeProduct(id);
+    setProducts((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, qty: newQty } : p))
+    );
+  };
+
+  const calculateTotal = (items: Product[]) =>
+    items.reduce((total, item) => total + item.price * item.qty, 0);
+
+  const totalItems = products.reduce((sum, p) => sum + p.qty, 0);
+  const totalAmount = calculateTotal(products);
   const taxAmount = totalAmount * TAX_RATE;
   const grossPrice = totalAmount + taxAmount;
 
@@ -114,145 +178,74 @@ export default function Page() {
     setError(null);
   };
 
-  // Update product stock after transaction
-  const updateStock = async (productId: string, qty: number): Promise<void> => {
-    try {
-      const response = await fetch(`/api/products/${productId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ qty }),
-      });
-
-      if (!response.ok) throw new Error("Failed to update product stock");
-      console.log("Product stock updated");
-    } catch (error) {
-      console.error("Error updating product stock:", error);
-    }
+  const updateStock = async (product: Product) => {
+    await fetch(`/api/products/${product._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qty: product.qty }),
+    });
   };
 
-  // Save the transaction to the server
   const saveTransaction = async (transaction: any) => {
-    try {
-      const response = await fetch("/api/transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(transaction),
-      });
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Transaction saved successfully!");
-      } else {
-        alert(data.error || "Failed to save transaction");
-      }
-    } catch (error) {
-      console.error("Error saving transaction:", error);
-    }
+    const response = await fetch("/api/transactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(transaction),
+    });
+    if (!response.ok) throw new Error("Failed to save transaction");
   };
 
-  // Cash payment handler
-  const handleCashPayment = async () => {
-    const cashGiven = prompt("Enter the cash amount paid:");
-
-    if (cashGiven === null) {
-      alert("Payment canceled.");
-      return;
-    }
-
-    const cashPaid = parseFloat(cashGiven);
-
-    if (isNaN(cashPaid)) {
-      alert("Invalid input. Please enter a valid number.");
-      return;
-    }
-
-    if (cashPaid >= grossPrice) {
-      const change = cashPaid - grossPrice;
-      alert(`Payment successful. Change: ${change.toFixed(2)}`);
-
-      // Generate transaction data
+  const processPayment = async (paymentMethod: string, cashPaid?: number) => {
+    try {
       const transaction = {
         date: new Date().toISOString(),
-        amount: totalAmount,
-        paymentMethod: "Cash",
-        productInfo: products.map((product) => product.name).join(","),
+        amount: grossPrice,
+        paymentMethod,
+        productInfo: products.map((p) => `${p.name} x ${p.qty}`).join(", "),
       };
-
-      // Save the transaction
       await saveTransaction(transaction);
-
-      // Update stock for each product sold
-      products.forEach(async (product) => {
-        await updateStock(product.id, product.qty);
-      });
-
-      // Generate the receipt data
+      await Promise.all(products.map(updateStock));
       setReceiptData({
         date: new Date().toLocaleString(),
         items: products,
         totalAmount,
         taxAmount,
         grossPrice,
-        paymentMethod: "Cash",
+        paymentMethod,
         cashPaid,
-        change,
+        change: cashPaid ? cashPaid - grossPrice : undefined,
       });
-
-      // Clear products after saving the transaction
       setProducts([]);
       setError(null);
-    } else {
-      alert(`Insufficient cash. Please pay at least ${grossPrice.toFixed(2)}.`);
+    } catch (err) {
+      setError("Transaction failed");
     }
   };
 
-  // Mobile payment handler
-  const handleMobilePayment = async () => {
-    alert("Mobile payment successful.");
-
-    const transaction = {
-      date: new Date().toISOString(),
-      amount: totalAmount,
-      paymentMethod: "Mobile",
-      productInfo: products.map((product) => product.name).join(","),
-    };
-
-    // Save the transaction
-    await saveTransaction(transaction);
-
-    // Update stock for each product sold
-    products.forEach(async (product) => {
-      await updateStock(product.id, product.qty);
-    });
-
-    // Generate the receipt data
-    setReceiptData({
-      date: new Date().toLocaleString(),
-      items: products,
-      totalAmount,
-      taxAmount,
-      grossPrice,
-      paymentMethod: "Mobile",
-    });
-
-    // Clear products after saving the transaction
-    setProducts([]);
-    setError(null);
+  const handleCashPayment = () => {
+    setShowCashModal(true);
   };
 
-  // Print receipt function using react-to-print
+  const confirmCash = () => {
+    const cashPaid = parseFloat(cashGiven);
+    setShowCashModal(false);
+    if (isNaN(cashPaid) || cashPaid < grossPrice) {
+      setError(`Insufficient cash. Need at least ${grossPrice.toFixed(2)}`);
+      return;
+    }
+    processPayment("Cash", cashPaid);
+  };
+
+  const handleMobilePayment = () => {
+    // Integrate real API here
+    processPayment("Mobile");
+  };
+
   const handlePrint = useReactToPrint({
     contentRef,
     documentTitle: "Receipt",
-    onAfterPrint: () => alert("Print successful"),
   });
-  const handlePrintClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    handlePrint();
-  };
+
   return (
     <div className="bg-gray-300 min-h-screen">
       <Navbar />
@@ -262,17 +255,19 @@ export default function Page() {
             <input
               type="text"
               placeholder="Scan Barcode"
-              className="border rounded border-rose-600 text-black font-bold w-15 shadow-md focus:outline-none p-2"
-              onChange={handleScan}
+              className="border rounded border-rose-600 text-black font-bold w-full shadow-md focus:outline-none p-2"
+              onChange={(e) => setProductId(e.target.value)}
+              onKeyDown={handleScanKeyDown}
               value={productId}
             />
             <button
-              onClick={handleAddProduct}
+              onClick={() => fetchProduct(productId)}
               className="rounded-r bg-rose-600 hover:bg-blue-600 p-2.5"
             >
               <FaCheck />
             </button>
           </div>
+          {loading && <p>Loading...</p>}
           <div className="overflow-x-auto">
             <table className="w-full mb-4">
               <thead>
@@ -280,17 +275,33 @@ export default function Page() {
                   <th className="text-black font-bold p-2 border">Item</th>
                   <th className="text-black font-bold p-2 border">Qty</th>
                   <th className="text-black font-bold p-2 border">Price</th>
+                  <th className="text-black font-bold p-2 border">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {products.map((product) => (
-                  <tr key={product.id}>
+                  <tr key={product._id}>
                     <td className="text-black border p-2 font-bold">
                       {product.name}
                     </td>
-                    <td className="text-black border p-2 font-bold">1</td>
+                    <td className="text-black border p-2 font-bold">
+                      <input
+                        type="number"
+                        value={product.qty}
+                        onChange={(e) =>
+                          updateQty(product._id, parseInt(e.target.value))
+                        }
+                        min="1"
+                        className="w-16"
+                      />
+                    </td>
                     <td className="text-black border p-2 font-bold">
                       {product.price}
+                    </td>
+                    <td className="text-black border p-2">
+                      <button onClick={() => removeProduct(product._id)}>
+                        Remove
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -339,7 +350,7 @@ export default function Page() {
               <span className="text-sm">Clear All</span>
             </button>
             <button
-              onClick={handlePrintClick}
+              onClick={() => handlePrint()}
               className="bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-lg flex items-center justify-center gap-2 col-span-2"
             >
               <IoPrintSharp className="text-xl" />
@@ -350,9 +361,34 @@ export default function Page() {
           {error && (
             <p className="text-red-600 text-center mt-4 font-bold">{error}</p>
           )}
+
+          {showCashModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-4 rounded">
+                <input
+                  type="number"
+                  placeholder="Enter cash amount"
+                  value={cashGiven}
+                  onChange={(e) => setCashGiven(e.target.value)}
+                  className="border p-2 mb-2"
+                />
+                <button
+                  onClick={confirmCash}
+                  className="bg-green-500 text-white p-2"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setShowCashModal(false)}
+                  className="bg-red-500 text-white p-2 ml-2"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right Panel */}
         <div className="bg-white rounded-lg shadow-md p-3 w-full md:w-2/3">
           <div className="flex flex-col md:flex-row gap-2 mb-4">
             <input
@@ -388,14 +424,18 @@ export default function Page() {
           )}
         </div>
 
-        {/* Receipt - Hidden until printed */}
         <div className="hidden">
           {receiptData && (
             <Receipt
               ref={contentRef}
               products={receiptData.items}
-              totalAmount={totalAmount}
-              grossPrice={grossPrice}
+              totalAmount={receiptData.totalAmount}
+              taxAmount={receiptData.taxAmount}
+              grossPrice={receiptData.grossPrice}
+              paymentMethod={receiptData.paymentMethod}
+              cashPaid={receiptData.cashPaid}
+              change={receiptData.change}
+              date={receiptData.date}
             />
           )}
         </div>
